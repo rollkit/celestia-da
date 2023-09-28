@@ -1,4 +1,4 @@
-package da_test
+package celestia_test
 
 import (
 	"testing"
