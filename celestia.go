@@ -12,6 +12,7 @@ import (
 	"github.com/rollkit/rollkit/log"
 )
 
+// Config contains the node RPC configuration
 type Config struct {
 	AuthToken string        `json:"auth_token"`
 	BaseURL   string        `json:"base_url"`
@@ -33,7 +34,7 @@ type CelestiaDA struct {
 func (c *CelestiaDA) Get(ids []da.ID) ([]da.Blob, error) {
 	var blobs []da.Blob
 	for _, id := range ids {
-		// TODO: id -> commitment
+		// TODO: extract commitment from ID
 		blob, err := c.rpc.Blob.Get(c.ctx, c.height, share.Namespace(c.namespace.Bytes()), blob.Commitment(id))
 		if err != nil {
 			return nil, err
@@ -76,8 +77,25 @@ func (c *CelestiaDA) Submit(daBlobs []da.Blob) ([]da.ID, []da.Proof, error) {
 	return nil, nil, nil
 }
 
-func (c *CelestiaDA) Validate(ids []da.ID, proofs []da.Proof) ([]bool, error) {
-	return nil, nil
+func (c *CelestiaDA) Validate(ids []da.ID, daProofs []da.Proof) ([]bool, error) {
+	var included []bool
+	var proofs []*blob.Proof
+	for _, daProof := range daProofs {
+		proof := &blob.Proof{}
+		if err := proof.UnmarshalJSON(daProof); err != nil {
+			return nil, err
+		}
+		proofs = append(proofs, proof)
+	}
+	for i, id := range ids {
+		// TODO: extract commitment from ID
+		isIncluded, err := c.rpc.Blob.Included(c.ctx, c.height, share.Namespace(c.namespace.Bytes()), proofs[i], blob.Commitment(id))
+		if err != nil {
+			return nil, err
+		}
+		included = append(included, isIncluded)
+	}
+	return included, nil
 }
 
 var _ da.DA = &CelestiaDA{}
