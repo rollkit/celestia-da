@@ -2,13 +2,13 @@
 
 ## Abstract
 
-This package implements the generic DA interface defined in [go-da] (github.com/rollkit/go-da) for Celestia.
+This package implements the generic DA interface defined in [go-da](https://github.com/rollkit/go-da) for Celestia.
 
 ## Details
 
 The generic DA interface defines how DA implementations can submit, retrieve and validate blobs.
 
-The Celestia implementation is a wrapper around [celestia-openrpc] (github.com/rollkit/celestia-openrpc) which
+The Celestia implementation is a wrapper around [celestia-openrpc](https://github.com/rollkit/celestia-openrpc) which
 connects to a local celestia node using an OpenRPC client.
 
 A new client can be created by passing in the OpenRPC configuration. These include the following parameters:
@@ -66,6 +66,6 @@ Validate validates blob ids and proofs and returns whether they are included.
 The implementation calls [blob.Included](https://docs.celestia.org/api/v0.11.0-rc13/#blob.Included) RPC method on the Celestia Node API.
 
 ## References
-[1] github.com/rollkit/go-da
-[2] github.com/rollkit/celestia-openrpc
+[1] https://github.com/rollkit/go-da
+[2] https://github.com/rollkit/celestia-openrpc
 [3] https://docs.celestia.org/api/v0.11.0-rc13/
