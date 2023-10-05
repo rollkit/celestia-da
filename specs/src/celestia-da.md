@@ -35,7 +35,7 @@ To be able to submit blobs, the following assumptions are made:
 
 ## Implementation
 
-The implementation calls the corresponding [Celestia Node RPC API] methods.
+The implementation calls the corresponding Celestia [node api docs] methods.
 
 ### Get
 
@@ -56,8 +56,6 @@ Submit submits blobs and returns their ids and proofs.
 The implementation calls [blob.Submit] RPC method with `DefaultSubmitOptions` on the Celestia Node API.
 
 `DefaultSubmitOptions` uses default values for `Fee` and `GasLimit`.
-
-TODO: Allow `SubmitOptions` to be passed in to the Submit method.
 
 ### Validate
 
