@@ -51,9 +51,9 @@ The implementation calls `blob.CreateCommitments` which does not call any RPC me
 
 ### Submit
 
-Submit submits blobs and returns their ids and proofs using `DefaultSubmitOptions`.
+Submit submits blobs and returns their ids and proofs.
 
-The implementation calls [blob.Submit](https://docs.celestia.org/api/v0.11.0-rc13/#blob.Submit) RPC method on the Celestia Node API.
+The implementation calls [blob.Submit](https://docs.celestia.org/api/v0.11.0-rc13/#blob.Submit) RPC method with `DefaultSubmitOptions` on the Celestia Node API.
 
 `DefaultSubmitOptions` uses default values for `Fee` and `GasLimit`.
 
