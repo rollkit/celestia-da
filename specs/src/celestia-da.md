@@ -67,5 +67,7 @@ The implementation calls [blob.Included](https://docs.celestia.org/api/v0.11.0-r
 
 ## References
 [1] https://github.com/rollkit/go-da
+
 [2] https://github.com/rollkit/celestia-openrpc
+
 [3] https://docs.celestia.org/api/v0.11.0-rc13/
