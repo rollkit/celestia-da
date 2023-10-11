@@ -4,29 +4,18 @@ import (
 	"context"
 	"time"
 
-	openrpc "github.com/rollkit/celestia-openrpc"
-	"github.com/rollkit/celestia-openrpc/types/blob"
-	openrpcns "github.com/rollkit/celestia-openrpc/types/namespace"
-	"github.com/rollkit/celestia-openrpc/types/share"
+	rpc "github.com/celestiaorg/celestia-node/api/rpc/client"
+	"github.com/celestiaorg/celestia-node/blob"
+	"github.com/celestiaorg/celestia-node/share"
 	"github.com/rollkit/go-da"
 	"github.com/rollkit/rollkit/log"
 )
 
-// Config contains the node RPC configuration
-type Config struct {
-	AuthToken string        `json:"auth_token"`
-	BaseURL   string        `json:"base_url"`
-	Timeout   time.Duration `json:"timeout"`
-	Fee       int64         `json:"fee"`
-	GasLimit  uint64        `json:"gas_limit"`
-}
-
 // / CelestiaDA implements the celestia backend for the DA interface
 type CelestiaDA struct {
-	rpc       *openrpc.Client
+	client    *rpc.Client
 	height    uint64
-	namespace openrpcns.Namespace
-	config    Config
+	namespace share.Namespace
 	logger    log.Logger
 	ctx       context.Context
 }
@@ -35,7 +24,7 @@ func (c *CelestiaDA) Get(ids []da.ID) ([]da.Blob, error) {
 	var blobs []da.Blob
 	for _, id := range ids {
 		// TODO: extract commitment from ID
-		blob, err := c.rpc.Blob.Get(c.ctx, c.height, share.Namespace(c.namespace.Bytes()), blob.Commitment(id))
+		blob, err := c.client.Blob.Get(c.ctx, c.height, share.Namespace(c.namespace.Bytes()), blob.Commitment(id))
 		if err != nil {
 			return nil, err
 		}
@@ -86,7 +75,7 @@ func (c *CelestiaDA) Submit(daBlobs []da.Blob) ([]da.ID, []da.Proof, error) {
 		}
 		blobs = append(blobs, b)
 	}
-	c.rpc.Blob.Submit(c.ctx, blobs, openrpc.DefaultSubmitOptions())
+	c.client.Blob.Submit(c.ctx, blobs)
 	return nil, nil, nil
 }
 
@@ -102,7 +91,7 @@ func (c *CelestiaDA) Validate(ids []da.ID, daProofs []da.Proof) ([]bool, error) 
 	}
 	for i, id := range ids {
 		// TODO: extract commitment from ID
-		isIncluded, err := c.rpc.Blob.Included(c.ctx, c.height, share.Namespace(c.namespace.Bytes()), proofs[i], blob.Commitment(id))
+		isIncluded, err := c.client.Blob.Included(c.ctx, c.height, share.Namespace(c.namespace.Bytes()), proofs[i], blob.Commitment(id))
 		if err != nil {
 			return nil, err
 		}
