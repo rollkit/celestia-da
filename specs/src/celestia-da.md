@@ -8,18 +8,7 @@ This package implements the generic DA interface defined in [go-da] for Celestia
 
 The generic DA interface defines how DA implementations can submit, retrieve and validate blobs.
 
-The Celestia implementation is a wrapper around [celestia-openrpc] which
-connects to a local celestia node using an OpenRPC client.
-
-A new client can be created by passing in the OpenRPC configuration. These include the following parameters:
-
-| Parameter   | Description                                | JSON field  |
-|-------------|--------------------------------------------|-------------|
-| Auth Token  | Authentication Token for node connection   | auth_token  |
-| Base URL    | URL for node connection                    | base_url    |
-| Timeout     | Timeout for node connection                | timeout     |
-| Fee         | Fee for submit blob transaction            | fee         |
-| Gas         | Gas for the submit blob transaction        | gas_limit   |
+The Celestia implementation connects to a local [celestia-node] instance using a RPC client and allows using Celestia as the DA layer.
 
 ## Assumptions
 
@@ -31,7 +20,7 @@ To be able to submit blobs, the following assumptions are made:
 
 * The local celestia node is fully caught up with the network tip.
 * The auth token has at least read/write permissions.
-* The local celestia node has a account with a non zero balance to pay fee.
+* The local celestia node has an account with a non-zero balance to pay fees if it wants to send blobs or transactions. A balance is not required for retrieving blobs.
 
 ## Implementation
 
@@ -66,12 +55,12 @@ The implementation calls [blob.Included] RPC method on the Celestia Node API.
 ## References
 [1] [go-da]
 
-[2] [celestia-openrpc]
+[2] [celestia-node]
 
 [3] [node api docs]
 
 [go-da]: https://github.com/rollkit/go-da
-[celestia-openrpc]: https://github.com/rollkit/celestia-openrpc
+[celestia-node]: https://github.com/celestiaorg/celestia-node
 [node api docs]: https://docs.celestia.org/api/v0.11.0-rc13/
 [blob.Get]: https://docs.celestia.org/api/v0.11.0-rc13/#blob.Get
 [blob.Submit]: https://docs.celestia.org/api/v0.11.0-rc13/#blob.Submit
