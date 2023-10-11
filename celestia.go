@@ -77,7 +77,11 @@ func (c *CelestiaDA) Submit(daBlobs []da.Blob) ([]da.ID, []da.Proof, error) {
 		}
 		blobs = append(blobs, b)
 	}
-	c.client.Blob.Submit(c.ctx, blobs, blob.DefaultSubmitOptions())
+	height, err := c.client.Blob.Submit(c.ctx, blobs, blob.DefaultSubmitOptions())
+	if err != nil {
+		return nil, nil, err
+	}
+	c.logger.Debug("succesfully submitted blobs", "height", height)
 	return nil, nil, nil
 }
 
