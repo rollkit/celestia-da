@@ -2,13 +2,15 @@ package celestia
 
 import (
 	"context"
-	"time"
 
+	"github.com/celestiaorg/celestia-app/x/blob/types"
 	rpc "github.com/celestiaorg/celestia-node/api/rpc/client"
 	"github.com/celestiaorg/celestia-node/blob"
 	"github.com/celestiaorg/celestia-node/share"
+	"github.com/celestiaorg/nmt"
 	"github.com/rollkit/go-da"
 	"github.com/rollkit/rollkit/log"
+	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 )
 
 // / CelestiaDA implements the celestia backend for the DA interface
@@ -24,7 +26,7 @@ func (c *CelestiaDA) Get(ids []da.ID) ([]da.Blob, error) {
 	var blobs []da.Blob
 	for _, id := range ids {
 		// TODO: extract commitment from ID
-		blob, err := c.client.Blob.Get(c.ctx, c.height, share.Namespace(c.namespace.Bytes()), blob.Commitment(id))
+		blob, err := c.client.Blob.Get(c.ctx, c.height, c.namespace, blob.Commitment(id))
 		if err != nil {
 			return nil, err
 		}
@@ -47,15 +49,15 @@ func (c *CelestiaDA) GetIDs(height uint64) ([]da.ID, error) {
 }
 
 func (c *CelestiaDA) Commit(daBlobs []da.Blob) ([]da.Commitment, error) {
-	var blobs []*blob.Blob
+	var blobs []*tmproto.Blob
 	for _, daBlob := range daBlobs {
-		b, err := blob.NewBlobV0(c.namespace.Bytes(), daBlob)
+		b, err := blob.NewBlobV0(c.namespace, daBlob)
 		if err != nil {
 			return nil, err
 		}
-		blobs = append(blobs, b)
+		blobs = append(blobs, &b.Blob)
 	}
-	commitments, err := blob.CreateCommitments(blobs)
+	commitments, err := types.CreateCommitments(blobs)
 	if err != nil {
 		return nil, err
 	}
@@ -69,13 +71,13 @@ func (c *CelestiaDA) Commit(daBlobs []da.Blob) ([]da.Commitment, error) {
 func (c *CelestiaDA) Submit(daBlobs []da.Blob) ([]da.ID, []da.Proof, error) {
 	var blobs []*blob.Blob
 	for _, daBlob := range daBlobs {
-		b, err := blob.NewBlobV0(c.namespace.Bytes(), daBlob)
+		b, err := blob.NewBlobV0(c.namespace, daBlob)
 		if err != nil {
 			return nil, nil, err
 		}
 		blobs = append(blobs, b)
 	}
-	c.client.Blob.Submit(c.ctx, blobs)
+	c.client.Blob.Submit(c.ctx, blobs, blob.DefaultSubmitOptions())
 	return nil, nil, nil
 }
 
@@ -83,15 +85,16 @@ func (c *CelestiaDA) Validate(ids []da.ID, daProofs []da.Proof) ([]bool, error) 
 	var included []bool
 	var proofs []*blob.Proof
 	for _, daProof := range daProofs {
-		proof := &blob.Proof{}
-		if err := proof.UnmarshalJSON(daProof); err != nil {
+		nmtProof := &nmt.Proof{}
+		if err := nmtProof.UnmarshalJSON(daProof); err != nil {
 			return nil, err
 		}
+		proof := &blob.Proof{nmtProof}
 		proofs = append(proofs, proof)
 	}
 	for i, id := range ids {
 		// TODO: extract commitment from ID
-		isIncluded, err := c.client.Blob.Included(c.ctx, c.height, share.Namespace(c.namespace.Bytes()), proofs[i], blob.Commitment(id))
+		isIncluded, err := c.client.Blob.Included(c.ctx, c.height, share.Namespace(c.namespace), proofs[i], blob.Commitment(id))
 		if err != nil {
 			return nil, err
 		}
