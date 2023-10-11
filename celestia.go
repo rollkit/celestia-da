@@ -44,6 +44,19 @@ func (c *CelestiaDA) Get(ids []da.ID) ([]da.Blob, error) {
 	return blobs, nil
 }
 
+func (c *CelestiaDA) GetIDs(height uint64) ([]da.ID, error) {
+	var ids []da.ID
+	blobs, err := c.rpc.Blob.GetAll(c.ctx, c.height, []share.Namespace{c.namespace.Bytes()})
+	if err != nil {
+		return nil, err
+	}
+	for _, blob := range blobs {
+		// TODO: commitment -> id
+		ids = append(ids, blob.Commitment)
+	}
+	return ids, nil
+}
+
 func (c *CelestiaDA) Commit(daBlobs []da.Blob) ([]da.Commitment, error) {
 	var blobs []*blob.Blob
 	for _, daBlob := range daBlobs {
