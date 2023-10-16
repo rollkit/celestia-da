@@ -9,7 +9,6 @@ require (
 	github.com/celestiaorg/celestia-node v0.11.0-rc15
 	github.com/celestiaorg/nmt v0.20.0
 	github.com/rollkit/go-da v0.0.0-20231011220854-6bd21b7f8cdb
-	github.com/rollkit/rollkit v0.10.4
 	github.com/tendermint/tendermint v0.35.9
 )
 
@@ -37,6 +36,7 @@ require (
 	github.com/bgentry/speakeasy v0.1.0 // indirect
 	github.com/bits-and-blooms/bitset v1.5.0 // indirect
 	github.com/btcsuite/btcd/btcec/v2 v2.3.2 // indirect
+	github.com/btcsuite/btcd/chaincfg/chainhash v1.0.2 // indirect
 	github.com/celestiaorg/go-ds-badger4 v0.0.0-20230712104058-7ede1c814ac5 // indirect
 	github.com/celestiaorg/go-fraud v0.2.0 // indirect
 	github.com/celestiaorg/go-header v0.3.3 // indirect
@@ -122,6 +122,7 @@ require (
 	github.com/google/uuid v1.3.1 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.2.3 // indirect
 	github.com/googleapis/gax-go/v2 v2.11.0 // indirect
+	github.com/gopherjs/gopherjs v0.0.0-20190812055157-5d271430af9f // indirect
 	github.com/gorilla/handlers v1.5.1 // indirect
 	github.com/gorilla/mux v1.8.0 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
