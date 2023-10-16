@@ -8,7 +8,7 @@ require (
 	github.com/celestiaorg/celestia-app v1.2.0
 	github.com/celestiaorg/celestia-node v0.11.0
 	github.com/celestiaorg/nmt v0.20.0
-	github.com/rollkit/go-da v0.0.0-20231011220854-6bd21b7f8cdb
+	github.com/rollkit/go-da v0.0.0-20231016110604-17e0ce611290
 	github.com/tendermint/tendermint v0.35.9
 )
 
@@ -36,7 +36,6 @@ require (
 	github.com/bgentry/speakeasy v0.1.0 // indirect
 	github.com/bits-and-blooms/bitset v1.7.0 // indirect
 	github.com/btcsuite/btcd/btcec/v2 v2.3.2 // indirect
-	github.com/btcsuite/btcd/chaincfg/chainhash v1.0.2 // indirect
 	github.com/celestiaorg/go-ds-badger4 v0.0.0-20230712104058-7ede1c814ac5 // indirect
 	github.com/celestiaorg/go-fraud v0.2.0 // indirect
 	github.com/celestiaorg/go-header v0.4.0 // indirect
