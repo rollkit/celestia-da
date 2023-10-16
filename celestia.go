@@ -11,7 +11,6 @@ import (
 	"github.com/celestiaorg/celestia-node/share"
 	"github.com/celestiaorg/nmt"
 	"github.com/rollkit/go-da"
-	"github.com/rollkit/rollkit/log"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 )
 
@@ -20,8 +19,16 @@ type CelestiaDA struct {
 	client    *rpc.Client
 	height    uint64
 	namespace share.Namespace
-	logger    log.Logger
 	ctx       context.Context
+}
+
+func NewCelestiaDA(client *rpc.Client, height uint64, namespace share.Namespace, ctx context.Context) *CelestiaDA {
+	return &CelestiaDA{
+		client:    client,
+		height:    height,
+		namespace: namespace,
+		ctx:       ctx,
+	}
 }
 
 func (c *CelestiaDA) Get(ids []da.ID) ([]da.Blob, error) {
@@ -86,7 +93,6 @@ func (c *CelestiaDA) Submit(daBlobs []da.Blob) ([]da.ID, []da.Proof, error) {
 	if err != nil {
 		return nil, nil, err
 	}
-	//c.logger.Debug("succesfully submitted blobs", "height", height)
 	fmt.Println("succesfully submitted blobs", "height", height)
 	return nil, nil, nil
 }
