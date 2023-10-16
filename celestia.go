@@ -2,6 +2,8 @@ package celestia
 
 import (
 	"context"
+	"errors"
+	"fmt"
 
 	"github.com/celestiaorg/celestia-app/x/blob/types"
 	rpc "github.com/celestiaorg/celestia-node/api/rpc/client"
@@ -37,7 +39,10 @@ func (c *CelestiaDA) Get(ids []da.ID) ([]da.Blob, error) {
 
 func (c *CelestiaDA) GetIDs(height uint64) ([]da.ID, error) {
 	var ids []da.ID
-	blobs, err := c.rpc.Blob.GetAll(c.ctx, c.height, []share.Namespace{c.namespace.Bytes()})
+	blobs, err := c.client.Blob.GetAll(c.ctx, c.height, []share.Namespace{c.namespace})
+	if errors.Is(err, blob.ErrBlobNotFound) {
+		return nil, nil
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -81,7 +86,8 @@ func (c *CelestiaDA) Submit(daBlobs []da.Blob) ([]da.ID, []da.Proof, error) {
 	if err != nil {
 		return nil, nil, err
 	}
-	c.logger.Debug("succesfully submitted blobs", "height", height)
+	//c.logger.Debug("succesfully submitted blobs", "height", height)
+	fmt.Println("succesfully submitted blobs", "height", height)
 	return nil, nil, nil
 }
 

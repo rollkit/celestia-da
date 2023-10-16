@@ -8,7 +8,7 @@ require (
 	github.com/celestiaorg/celestia-app v1.0.0-rc18
 	github.com/celestiaorg/celestia-node v0.11.0-rc15
 	github.com/celestiaorg/nmt v0.20.0
-	github.com/rollkit/go-da v0.0.0-20230925162736-97dc8dbc79e4
+	github.com/rollkit/go-da v0.0.0-20231011220854-6bd21b7f8cdb
 	github.com/rollkit/rollkit v0.10.4
 	github.com/tendermint/tendermint v0.35.9
 )
