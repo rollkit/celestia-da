@@ -14,7 +14,7 @@ import (
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 )
 
-// / CelestiaDA implements the celestia backend for the DA interface
+// CelestiaDA implements the celestia backend for the DA interface
 type CelestiaDA struct {
 	client    *rpc.Client
 	height    uint64
@@ -22,6 +22,7 @@ type CelestiaDA struct {
 	ctx       context.Context
 }
 
+// NewCelestiaDA returns an instance of CelestiaDA
 func NewCelestiaDA(client *rpc.Client, height uint64, namespace share.Namespace, ctx context.Context) *CelestiaDA {
 	return &CelestiaDA{
 		client:    client,
