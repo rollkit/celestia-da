@@ -105,8 +105,7 @@ func (t *TestSuite) TestCelestiaDA() {
 		logger:    nil,
 		ctx:       ctx,
 	}
-	test.BasicDATest(t.T(), da)
-	//test.RunDATestSuite(t.T(), da)
+	test.RunDATestSuite(t.T(), da)
 }
 
 func (t *TestSuite) getRPCAddress() string {
