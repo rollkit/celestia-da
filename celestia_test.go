@@ -1,11 +1,10 @@
-package celestia
+package celestia_test
 
 import (
 	"bytes"
 	"context"
 	"errors"
 	"fmt"
-	"github.com/celestiaorg/celestia-node/share"
 	"io"
 	"log"
 	"net/http"
@@ -17,6 +16,8 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	rpc "github.com/celestiaorg/celestia-node/api/rpc/client"
+	"github.com/celestiaorg/celestia-node/share"
+	"github.com/rollkit/celestia-da"
 	"github.com/rollkit/go-da/test"
 )
 
@@ -98,13 +99,7 @@ func (t *TestSuite) TestCelestiaDA() {
 	t.Require().NoError(err)
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
 	defer cancel()
-	da := &CelestiaDA{
-		client:    client,
-		height:    1,
-		namespace: ns,
-		logger:    nil,
-		ctx:       ctx,
-	}
+	da := celestia.NewCelestiaDA(client, ns, ctx)
 	test.RunDATestSuite(t.T(), da)
 }
 
