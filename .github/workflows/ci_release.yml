@@ -34,12 +34,9 @@ jobs:
     with:
       GO_VERSION: "1.21"
 
-  proto:
-    uses: ./.github/workflows/proto.yml
-
   # Make a release if this is a manually trigger job, i.e. workflow_dispatch
   release:
-    needs: [lint, test, proto]
+    needs: [lint, test]
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'workflow_dispatch' }}
     permissions: "write-all"
