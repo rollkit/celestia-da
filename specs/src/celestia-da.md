@@ -68,8 +68,8 @@ The implementation calls [blob.Included] RPC method on the Celestia Node API.
 
 [go-da]: https://github.com/rollkit/go-da
 [celestia-node]: https://github.com/celestiaorg/celestia-node
-[node api docs]: https://docs.celestia.org/api/v0.11.0-rc13/
-[blob.Get]: https://docs.celestia.org/api/v0.11.0-rc13/#blob.Get
-[blob.GetAll]: https://docs.celestia.org/api/v0.11.0-rc13/#blob.GetAll
-[blob.Submit]: https://docs.celestia.org/api/v0.11.0-rc13/#blob.Submit
-[blob.Included]: https://docs.celestia.org/api/v0.11.0-rc13/#blob.Included
+[node api docs]: https://node-rpc-docs.celestia.org/?version=v0.11.0
+[blob.Get]: https://node-rpc-docs.celestia.org/?version=v0.11.0#blob.Get
+[blob.GetAll]: https://node-rpc-docs.celestia.org/?version=v0.11.0#blob.GetAll
+[blob.Submit]: https://node-rpc-docs.celestia.org/?version=v0.11.0#blob.Submit
+[blob.Included]: https://node-rpc-docs.celestia.org/?version=v0.11.0#blob.Included
