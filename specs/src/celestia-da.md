@@ -59,6 +59,7 @@ Validate validates blob ids and proofs and returns whether they are included.
 The implementation calls [blob.Included] RPC method on the Celestia Node API.
 
 ## References
+
 [1] [go-da]
 
 [2] [celestia-node]
