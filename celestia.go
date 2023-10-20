@@ -3,15 +3,17 @@ package celestia
 import (
 	"context"
 	"encoding/binary"
+	"log"
+	"strings"
+
 	"github.com/celestiaorg/celestia-app/x/blob/types"
 	rpc "github.com/celestiaorg/celestia-node/api/rpc/client"
 	"github.com/celestiaorg/celestia-node/blob"
 	"github.com/celestiaorg/celestia-node/share"
 	"github.com/celestiaorg/nmt"
-	"github.com/rollkit/go-da"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
-	"log"
-	"strings"
+
+	"github.com/rollkit/go-da"
 )
 
 // CelestiaDA implements the celestia backend for the DA interface
@@ -30,6 +32,7 @@ func NewCelestiaDA(client *rpc.Client, namespace share.Namespace, ctx context.Co
 	}
 }
 
+// Get returns Blob for each given ID, or an error.
 func (c *CelestiaDA) Get(ids []da.ID) ([]da.Blob, error) {
 	var blobs []da.Blob
 	for _, id := range ids {
@@ -43,6 +46,7 @@ func (c *CelestiaDA) Get(ids []da.ID) ([]da.Blob, error) {
 	return blobs, nil
 }
 
+// GetIDs returns IDs of all Blobs located in DA at given height.
 func (c *CelestiaDA) GetIDs(height uint64) ([]da.ID, error) {
 	var ids []da.ID
 	blobs, err := c.client.Blob.GetAll(c.ctx, height, []share.Namespace{c.namespace})
@@ -59,6 +63,7 @@ func (c *CelestiaDA) GetIDs(height uint64) ([]da.ID, error) {
 	return ids, nil
 }
 
+// Commit creates a Commitment for each given Blob.
 func (c *CelestiaDA) Commit(daBlobs []da.Blob) ([]da.Commitment, error) {
 	var blobs []*tmproto.Blob
 	for _, daBlob := range daBlobs {
@@ -79,6 +84,7 @@ func (c *CelestiaDA) Commit(daBlobs []da.Blob) ([]da.Commitment, error) {
 	return daCommitments, nil
 }
 
+// Submit submits the Blobs to Data Availability layer.
 func (c *CelestiaDA) Submit(daBlobs []da.Blob) ([]da.ID, []da.Proof, error) {
 	var blobs []*blob.Blob
 	var commitments []da.Commitment
@@ -90,6 +96,9 @@ func (c *CelestiaDA) Submit(daBlobs []da.Blob) ([]da.ID, []da.Proof, error) {
 		blobs = append(blobs, b)
 
 		commitment, err := types.CreateCommitment(&b.Blob)
+		if err != nil {
+			return nil, nil, err
+		}
 		commitments = append(commitments, commitment)
 	}
 	height, err := c.client.Blob.Submit(c.ctx, blobs, blob.DefaultSubmitOptions())
@@ -114,6 +123,7 @@ func (c *CelestiaDA) Submit(daBlobs []da.Blob) ([]da.ID, []da.Proof, error) {
 	return ids, proofs, nil
 }
 
+// Validate validates Commitments against the corresponding Proofs. This should be possible without retrieving the Blobs.
 func (c *CelestiaDA) Validate(ids []da.ID, daProofs []da.Proof) ([]bool, error) {
 	var included []bool
 	var proofs []*blob.Proof

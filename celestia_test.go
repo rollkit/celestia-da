@@ -17,6 +17,7 @@ import (
 
 	rpc "github.com/celestiaorg/celestia-node/api/rpc/client"
 	"github.com/celestiaorg/celestia-node/share"
+
 	"github.com/rollkit/celestia-da"
 	"github.com/rollkit/go-da/test"
 )
