@@ -4,14 +4,15 @@ import (
 	"context"
 	"encoding/hex"
 	"errors"
+	"log"
+	"net"
+	"os"
+
 	rpc "github.com/celestiaorg/celestia-node/api/rpc/client"
 	"github.com/celestiaorg/celestia-node/share"
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-	"log"
-	"net"
-	"os"
 
 	"github.com/rollkit/celestia-da"
 	"github.com/rollkit/go-da/proxy"
