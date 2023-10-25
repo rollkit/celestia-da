@@ -145,18 +145,23 @@ func (c *CelestiaDA) Validate(ids []da.ID, daProofs []da.Proof) ([]bool, error) 
 	return included, nil
 }
 
+// heightLen is a length (in bytes) of serialized height.
+//
+// This is 8 as uint64 consist of 8 bytes.
+const heightLen = 8
+
 func makeID(height uint64, commitment da.Commitment) da.ID {
-	id := make([]byte, 8+len(commitment))
+	id := make([]byte, heightLen+len(commitment))
 	binary.LittleEndian.PutUint64(id, height)
-	copy(id[8:], commitment)
+	copy(id[heightLen:], commitment)
 	return id
 }
 
 func splitID(id da.ID) (uint64, da.Commitment) {
-	if len(id) <= 8 {
+	if len(id) <= heightLen {
 		return 0, nil
 	}
-	return binary.LittleEndian.Uint64(id[:8]), id[8:]
+	return binary.LittleEndian.Uint64(id[:heightLen]), id[heightLen:]
 }
 
 var _ da.DA = &CelestiaDA{}
