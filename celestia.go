@@ -11,6 +11,7 @@ import (
 	"github.com/celestiaorg/celestia-node/blob"
 	"github.com/celestiaorg/celestia-node/share"
 	"github.com/celestiaorg/nmt"
+
 	"github.com/rollkit/go-da"
 )
 
