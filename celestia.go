@@ -56,9 +56,8 @@ func (c *CelestiaDA) GetIDs(height uint64) ([]da.ID, error) {
 		}
 		return nil, err
 	}
-	for _, blob := range blobs {
-		// TODO: commitment -> id
-		ids = append(ids, makeID(height, blob.Commitment))
+	for _, b := range blobs {
+		ids = append(ids, makeID(height, b.Commitment))
 	}
 	return ids, nil
 }
@@ -140,8 +139,7 @@ func (c *CelestiaDA) Validate(ids []da.ID, daProofs []da.Proof) ([]bool, error) 
 		// TODO(tzdybal): for some reason, if proof doesn't match commitment, API returns (false, "blob: invalid proof")
 		//    but analysis of the code in celestia-node implies this should never happen - maybe it's caused by openrpc?
 		//    there is no way of gently handling errors here, but returned value is fine for us
-		isIncluded, err := c.client.Blob.Included(c.ctx, height, c.namespace, proofs[i], commitment)
-		log.Println("Included: ", isIncluded, err)
+		isIncluded, _ := c.client.Blob.Included(c.ctx, height, c.namespace, proofs[i], commitment)
 		included = append(included, isIncluded)
 	}
 	return included, nil
