@@ -11,8 +11,6 @@ import (
 	"github.com/celestiaorg/celestia-node/blob"
 	"github.com/celestiaorg/celestia-node/share"
 	"github.com/celestiaorg/nmt"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
-
 	"github.com/rollkit/go-da"
 )
 
@@ -64,41 +62,15 @@ func (c *CelestiaDA) GetIDs(height uint64) ([]da.ID, error) {
 
 // Commit creates a Commitment for each given Blob.
 func (c *CelestiaDA) Commit(daBlobs []da.Blob) ([]da.Commitment, error) {
-	var blobs []*tmproto.Blob
-	for _, daBlob := range daBlobs {
-		b, err := blob.NewBlobV0(c.namespace, daBlob)
-		if err != nil {
-			return nil, err
-		}
-		blobs = append(blobs, &b.Blob)
-	}
-	commitments, err := types.CreateCommitments(blobs)
-	if err != nil {
-		return nil, err
-	}
-	var daCommitments []da.Commitment
-	for _, commitment := range commitments {
-		daCommitments = append(daCommitments, da.Commitment(commitment))
-	}
-	return daCommitments, nil
+	_, commitments, err := c.blobsAndCommitments(daBlobs)
+	return commitments, err
 }
 
 // Submit submits the Blobs to Data Availability layer.
 func (c *CelestiaDA) Submit(daBlobs []da.Blob) ([]da.ID, []da.Proof, error) {
-	var blobs []*blob.Blob
-	var commitments []da.Commitment
-	for _, daBlob := range daBlobs {
-		b, err := blob.NewBlobV0(c.namespace, daBlob)
-		if err != nil {
-			return nil, nil, err
-		}
-		blobs = append(blobs, b)
-
-		commitment, err := types.CreateCommitment(&b.Blob)
-		if err != nil {
-			return nil, nil, err
-		}
-		commitments = append(commitments, commitment)
+	blobs, commitments, err := c.blobsAndCommitments(daBlobs)
+	if err != nil {
+		return nil, nil, err
 	}
 	height, err := c.client.Blob.Submit(c.ctx, blobs, blob.DefaultSubmitOptions())
 	if err != nil {
@@ -120,6 +92,26 @@ func (c *CelestiaDA) Submit(daBlobs []da.Blob) ([]da.ID, []da.Proof, error) {
 		}
 	}
 	return ids, proofs, nil
+}
+
+// blobsAndCommitments converts []da.Blob to []*blob.Blob and generates corresponding []da.Commitment
+func (c *CelestiaDA) blobsAndCommitments(daBlobs []da.Blob) ([]*blob.Blob, []da.Commitment, error) {
+	var blobs []*blob.Blob
+	var commitments []da.Commitment
+	for _, daBlob := range daBlobs {
+		b, err := blob.NewBlobV0(c.namespace, daBlob)
+		if err != nil {
+			return nil, nil, err
+		}
+		blobs = append(blobs, b)
+
+		commitment, err := types.CreateCommitment(&b.Blob)
+		if err != nil {
+			return nil, nil, err
+		}
+		commitments = append(commitments, commitment)
+	}
+	return blobs, commitments, nil
 }
 
 // Validate validates Commitments against the corresponding Proofs. This should be possible without retrieving the Blobs.
