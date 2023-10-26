@@ -9,7 +9,7 @@ require (
 	github.com/celestiaorg/celestia-node v0.11.0
 	github.com/celestiaorg/nmt v0.20.0
 	github.com/ory/dockertest/v3 v3.10.0
-	github.com/rollkit/go-da v0.0.0-20231016110604-17e0ce611290
+	github.com/rollkit/go-da v0.0.0-20231024133951-57bc36006772
 	github.com/spf13/cobra v1.7.0
 	github.com/stretchr/testify v1.8.4
 	google.golang.org/grpc v1.58.3
