@@ -5,7 +5,7 @@ go 1.21.1
 replace github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 
 require (
-	github.com/celestiaorg/celestia-app v1.2.0
+	github.com/celestiaorg/celestia-app v1.3.0
 	github.com/celestiaorg/celestia-node v0.11.0
 	github.com/celestiaorg/nmt v0.20.0
 	github.com/ory/dockertest/v3 v3.10.0
