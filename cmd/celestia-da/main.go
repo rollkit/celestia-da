@@ -3,12 +3,21 @@ package main
 import (
 	"context"
 	"encoding/hex"
-	"errors"
-	"log"
 	"net"
+
+	"errors"
 	"os"
+	"os/signal"
+	"path/filepath"
+	"syscall"
+
+	"github.com/cosmos/cosmos-sdk/crypto/keyring"
+
+	"github.com/celestiaorg/celestia-app/app"
+	"github.com/celestiaorg/celestia-app/app/encoding"
 
 	rpc "github.com/celestiaorg/celestia-node/api/rpc/client"
+	"github.com/celestiaorg/celestia-node/nodebuilder"
 	"github.com/celestiaorg/celestia-node/share"
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
@@ -31,9 +40,57 @@ func main() {
 	rootCmd := &cobra.Command{
 		Use:   "celestia-da",
 		Short: "Celesia DA layer gRPC server for rollkit",
-		Run: func(cmd *cobra.Command, args []string) {
+		RunE: func(cmd *cobra.Command, args []string) error {
+			ctx := cmd.Context()
+
+			// override config with all modifiers passed on start
+			cfg := NodeConfig(ctx)
+
+			storePath := StorePath(ctx)
+			keysPath := filepath.Join(storePath, "keys")
+
+			// construct ring
+			// TODO @renaynay: Include option for setting custom `userInput` parameter with
+			//  implementation of https://github.com/celestiaorg/celestia-node/issues/415.
+			encConf := encoding.MakeConfig(app.ModuleEncodingRegisters...)
+			ring, err := keyring.New(app.Name, cfg.State.KeyringBackend, keysPath, os.Stdin, encConf.Codec)
+			if err != nil {
+				return err
+			}
+
+			store, err := nodebuilder.OpenStore(storePath, ring)
+			if err != nil {
+				return err
+			}
+			defer func() {
+				err = errors.Join(err, store.Close())
+			}()
+
+			nd, err := nodebuilder.NewWithConfig(NodeType(ctx), Network(ctx), store, &cfg, NodeOptions(ctx)...)
+			if err != nil {
+				return err
+			}
+
+			ctx, cancel := signal.NotifyContext(cmd.Context(), syscall.SIGINT, syscall.SIGTERM)
+			defer cancel()
+			err = nd.Start(ctx)
+			if err != nil {
+				return err
+			}
+
+			<-ctx.Done()
+			cancel() // ensure we stop reading more signals for start context
+
+			ctx, cancel = signal.NotifyContext(cmd.Context(), syscall.SIGINT, syscall.SIGTERM)
+			defer cancel()
+
+			if err := nd.Stop(ctx); err != nil {
+				return err
+			}
+
 			// Working with OutOrStdout/OutOrStderr allows us to unit test our command easier
 			serve(rpcAddress, rpcToken, namespace)
+			return nil
 		},
 	}
 
@@ -82,7 +139,7 @@ func serve(rpcAddress string, rpcToken string, nsString string) {
 	if err != nil {
 		log.Fatalln("failed to create network listener:", err)
 	}
-	log.Println("serving celestia-da over gRPC on:", lis.Addr())
+	log.Infoln("serving celestia-da over gRPC on:", lis.Addr())
 	err = srv.Serve(lis)
 	if !errors.Is(err, grpc.ErrServerStopped) {
 		log.Fatalln("gRPC server stopped with error:", err)
