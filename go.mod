@@ -5,8 +5,8 @@ go 1.21.1
 replace github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 
 require (
-	github.com/celestiaorg/celestia-app v1.2.0
-	github.com/celestiaorg/celestia-node v0.11.0
+	github.com/celestiaorg/celestia-app v1.3.0
+	github.com/celestiaorg/celestia-node v0.12.0
 	github.com/celestiaorg/nmt v0.20.0
 	github.com/ory/dockertest/v3 v3.10.0
 	github.com/rollkit/go-da v0.0.0-20231024133951-57bc36006772
@@ -43,7 +43,7 @@ require (
 	github.com/btcsuite/btcd/btcec/v2 v2.3.2 // indirect
 	github.com/celestiaorg/go-ds-badger4 v0.0.0-20230712104058-7ede1c814ac5 // indirect
 	github.com/celestiaorg/go-fraud v0.2.0 // indirect
-	github.com/celestiaorg/go-header v0.4.0 // indirect
+	github.com/celestiaorg/go-header v0.4.1 // indirect
 	github.com/celestiaorg/go-libp2p-messenger v0.2.0 // indirect
 	github.com/celestiaorg/merkletree v0.0.0-20210714075610-a84dc3ddbbe4 // indirect
 	github.com/celestiaorg/quantum-gravity-bridge/v2 v2.1.2 // indirect
