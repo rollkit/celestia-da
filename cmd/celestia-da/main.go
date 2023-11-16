@@ -132,7 +132,7 @@ func serve(ctx context.Context, rpcAddress, rpcToken, listenAddress, listenNetwo
 	}
 	defer func() {
 		if err := lis.Close(); err != nil {
-			log.Fatalln("failed to close network listener:", err)
+			log.Errorln("failed to close network listener:", err)
 		}
 	}()
 	log.Infoln("serving celestia-da over gRPC on:", lis.Addr())
