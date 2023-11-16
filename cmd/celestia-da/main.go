@@ -3,28 +3,28 @@ package main
 import (
 	"context"
 	"encoding/hex"
-	"net"
-
 	"errors"
+	"net"
 	"os"
-	"os/signal"
-	"path/filepath"
-	"syscall"
-
-	"github.com/cosmos/cosmos-sdk/crypto/keyring"
-
-	"github.com/celestiaorg/celestia-app/app"
-	"github.com/celestiaorg/celestia-app/app/encoding"
 
 	rpc "github.com/celestiaorg/celestia-node/api/rpc/client"
-	"github.com/celestiaorg/celestia-node/nodebuilder"
+	"github.com/celestiaorg/celestia-node/nodebuilder/core"
+	"github.com/celestiaorg/celestia-node/nodebuilder/gateway"
+	"github.com/celestiaorg/celestia-node/nodebuilder/header"
+	"github.com/celestiaorg/celestia-node/nodebuilder/node"
+	"github.com/celestiaorg/celestia-node/nodebuilder/p2p"
+	"github.com/celestiaorg/celestia-node/nodebuilder/state"
 	"github.com/celestiaorg/celestia-node/share"
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
 	"github.com/rollkit/celestia-da"
 	"github.com/rollkit/go-da/proxy"
+
+	cmdnode "github.com/celestiaorg/celestia-node/cmd"
+	noderpc "github.com/celestiaorg/celestia-node/nodebuilder/rpc"
 )
 
 func main() {
@@ -37,62 +37,37 @@ func main() {
 	listenAddress := "0.0.0.0:0"
 	listenNetwork := "tcp"
 
-	rootCmd := &cobra.Command{
-		Use:   "celestia-da",
-		Short: "Celesia DA layer gRPC server for rollup frameworks",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			ctx := cmd.Context()
+	flags := []*pflag.FlagSet{
+		cmdnode.NodeFlags(),
+		p2p.Flags(),
+		header.Flags(),
+		cmdnode.MiscFlags(),
+		// NOTE: for now, state-related queries can only be accessed
+		// over an RPC connection with a celestia-core node.
+		core.Flags(),
+		noderpc.Flags(),
+		gateway.Flags(),
+		state.Flags(),
+	}
 
-			// override config with all modifiers passed on start
-			cfg := NodeConfig(ctx)
-
-			storePath := StorePath(ctx)
-			keysPath := filepath.Join(storePath, "keys")
-
-			// construct ring
-			// TODO @renaynay: Include option for setting custom `userInput` parameter with
-			//  implementation of https://github.com/celestiaorg/celestia-node/issues/415.
-			encConf := encoding.MakeConfig(app.ModuleEncodingRegisters...)
-			ring, err := keyring.New(app.Name, cfg.State.KeyringBackend, keysPath, os.Stdin, encConf.Codec)
-			if err != nil {
-				return err
-			}
-
-			store, err := nodebuilder.OpenStore(storePath, ring)
-			if err != nil {
-				return err
-			}
-			defer func() {
-				err = errors.Join(err, store.Close())
-			}()
-
-			nd, err := nodebuilder.NewWithConfig(NodeType(ctx), Network(ctx), store, &cfg, NodeOptions(ctx)...)
-			if err != nil {
-				return err
-			}
-
-			ctx, cancel := signal.NotifyContext(cmd.Context(), syscall.SIGINT, syscall.SIGTERM)
-			defer cancel()
-			err = nd.Start(ctx)
-			if err != nil {
-				return err
-			}
-
-			<-ctx.Done()
-			cancel() // ensure we stop reading more signals for start context
-
-			ctx, cancel = signal.NotifyContext(cmd.Context(), syscall.SIGINT, syscall.SIGTERM)
-			defer cancel()
-
-			if err := nd.Stop(ctx); err != nil {
-				return err
-			}
-
-			// Working with OutOrStdout/OutOrStderr allows us to unit test our command easier
-			serve(rpcAddress, rpcToken, namespace)
-			return nil
+	var rootCmd = &cobra.Command{
+		Use:     "light [subcommand]",
+		Args:    cobra.NoArgs,
+		Short:   "Manage your Light node",
+		PostRun: func(_ *cobra.Command, _ []string) { serve(rpcAddress, rpcToken, namespace) },
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+			return cmdnode.PersistentPreRunEnv(cmd, node.Light, args)
 		},
 	}
+
+	rootCmd.AddCommand(
+		cmdnode.Init(flags...),
+		cmdnode.Start(flags...),
+		cmdnode.AuthCmd(flags...),
+		cmdnode.ResetStore(flags...),
+		cmdnode.RemoveConfigCmd(flags...),
+		cmdnode.UpdateConfigCmd(flags...),
+	)
 
 	rootCmd.Flags().StringVar(&rpcAddress, "rpc.address", rpcAddress, "celestia-node RPC endpoint address")
 	rootCmd.Flags().StringVar(&rpcToken, "rpc.token", "", "celestia-node RPC auth token")
