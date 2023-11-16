@@ -39,7 +39,7 @@ func main() {
 
 	rootCmd := &cobra.Command{
 		Use:   "celestia-da",
-		Short: "Celesia DA layer gRPC server for rollkit",
+		Short: "Celesia DA layer gRPC server for rollup frameworks",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
 
