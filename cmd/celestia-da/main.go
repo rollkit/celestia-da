@@ -7,6 +7,12 @@ import (
 	"net"
 	"os"
 
+	logging "github.com/ipfs/go-log/v2"
+	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+
 	rpc "github.com/celestiaorg/celestia-node/api/rpc/client"
 	"github.com/celestiaorg/celestia-node/nodebuilder/core"
 	"github.com/celestiaorg/celestia-node/nodebuilder/gateway"
@@ -15,10 +21,6 @@ import (
 	"github.com/celestiaorg/celestia-node/nodebuilder/p2p"
 	"github.com/celestiaorg/celestia-node/nodebuilder/state"
 	"github.com/celestiaorg/celestia-node/share"
-	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 
 	"github.com/rollkit/celestia-da"
 	"github.com/rollkit/go-da/proxy"
@@ -26,6 +28,8 @@ import (
 	cmdnode "github.com/celestiaorg/celestia-node/cmd"
 	noderpc "github.com/celestiaorg/celestia-node/nodebuilder/rpc"
 )
+
+var log = logging.Logger("cmd")
 
 func main() {
 	// TODO(tzdybal): extract configuration and mainCmd from main func
