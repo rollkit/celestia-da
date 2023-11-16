@@ -7,26 +7,15 @@ import (
 	"net"
 	"os"
 
+	rpc "github.com/celestiaorg/celestia-node/api/rpc/client"
+	"github.com/celestiaorg/celestia-node/share"
 	logging "github.com/ipfs/go-log/v2"
+	"github.com/rollkit/celestia-da"
+	"github.com/rollkit/go-da/proxy"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-
-	rpc "github.com/celestiaorg/celestia-node/api/rpc/client"
-	"github.com/celestiaorg/celestia-node/nodebuilder/core"
-	"github.com/celestiaorg/celestia-node/nodebuilder/gateway"
-	"github.com/celestiaorg/celestia-node/nodebuilder/header"
-	"github.com/celestiaorg/celestia-node/nodebuilder/node"
-	"github.com/celestiaorg/celestia-node/nodebuilder/p2p"
-	"github.com/celestiaorg/celestia-node/nodebuilder/state"
-	"github.com/celestiaorg/celestia-node/share"
-
-	"github.com/rollkit/celestia-da"
-	"github.com/rollkit/go-da/proxy"
-
-	cmdnode "github.com/celestiaorg/celestia-node/cmd"
-	noderpc "github.com/celestiaorg/celestia-node/nodebuilder/rpc"
 )
 
 var log = logging.Logger("cmd")
@@ -42,69 +31,6 @@ func grpcFlags() *pflag.FlagSet {
 	flags.String("grpc.network", "tcp", "gRPC service listen network type must be \"tcp\", \"tcp4\", \"tcp6\", \"unix\" or \"unixpacket\"")
 
 	return flags
-}
-
-func main() {
-	// TODO(tzdybal): extract configuration and mainCmd from main func
-	// TODO(tzdybal): read configuration from file (with viper)
-	flags := []*pflag.FlagSet{
-		cmdnode.NodeFlags(),
-		p2p.Flags(),
-		header.Flags(),
-		cmdnode.MiscFlags(),
-		// NOTE: for now, state-related queries can only be accessed
-		// over an RPC connection with a celestia-core node.
-		core.Flags(),
-		noderpc.Flags(),
-		gateway.Flags(),
-		state.Flags(),
-	}
-
-	startCmd := cmdnode.Start(append(flags, grpcFlags())...)
-	if err := startCmd.MarkFlagRequired("grpc.token"); err != nil {
-		log.Fatal("grpc.token:", err)
-	}
-
-	if err := startCmd.MarkFlagRequired("grpc.namespace"); err != nil {
-		log.Fatal("grpc.namespace:", err)
-	}
-	startRunE := startCmd.RunE
-	startCmd.RunE = func(cmd *cobra.Command, args []string) error {
-		// Extract gRPC service flags
-		rpcAddress, _ := cmd.Flags().GetString("grpc.address")
-		rpcToken, _ := cmd.Flags().GetString("grpc.token")
-		nsString, _ := cmd.Flags().GetString("grpc.namespace")
-		listenAddress, _ := cmd.Flags().GetString("grpc.listen")
-		listenNetwork, _ := cmd.Flags().GetString("grpc.network")
-
-		// serve the gRPC service in a goroutine
-		go serve(cmd.Context(), rpcAddress, rpcToken, listenAddress, listenNetwork, nsString)
-
-		// Continue with the original start command execution
-		return startRunE(cmd, args)
-	}
-
-	var rootCmd = &cobra.Command{
-		Use:   "light [subcommand]",
-		Args:  cobra.NoArgs,
-		Short: "Manage your Light node",
-		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-			return cmdnode.PersistentPreRunEnv(cmd, node.Light, args)
-		},
-	}
-
-	rootCmd.AddCommand(
-		cmdnode.Init(flags...),
-		startCmd,
-		cmdnode.AuthCmd(flags...),
-		cmdnode.ResetStore(flags...),
-		cmdnode.RemoveConfigCmd(flags...),
-		cmdnode.UpdateConfigCmd(flags...),
-	)
-
-	if err := rootCmd.Execute(); err != nil {
-		os.Exit(1)
-	}
 }
 
 func serve(ctx context.Context, rpcAddress, rpcToken, listenAddress, listenNetwork, nsString string) {
@@ -140,4 +66,34 @@ func serve(ctx context.Context, rpcAddress, rpcToken, listenAddress, listenNetwo
 	if !errors.Is(err, grpc.ErrServerStopped) {
 		log.Fatalln("gRPC server stopped with error:", err)
 	}
+}
+
+func init() {
+	rootCmd.AddCommand(lightCmd, bridgeCmd, fullCmd)
+}
+
+func main() {
+	err := run()
+	if err != nil {
+		os.Exit(1)
+	}
+}
+
+func run() error {
+	return rootCmd.ExecuteContext(context.Background())
+}
+
+var rootCmd = &cobra.Command{
+	Use: "celestia [  bridge  ||  full ||  light  ] [subcommand]",
+	Short: `
+	    ____      __          __  _
+	  / ____/__  / /__  _____/ /_(_)___ _
+	 / /   / _ \/ / _ \/ ___/ __/ / __  /
+	/ /___/  __/ /  __(__  ) /_/ / /_/ /
+	\____/\___/_/\___/____/\__/_/\__,_/
+	`,
+	Args: cobra.NoArgs,
+	CompletionOptions: cobra.CompletionOptions{
+		DisableDefaultCmd: false,
+	},
 }
