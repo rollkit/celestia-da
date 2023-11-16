@@ -31,16 +31,22 @@ import (
 
 var log = logging.Logger("cmd")
 
+// grpcFlags contain the flags related to the gRPC DAService
+func grpcFlags() *pflag.FlagSet {
+	flags := &pflag.FlagSet{}
+
+	flags.String("grpc.address", "http://127.0.0.1:26658", "celestia-node RPC endpoint address")
+	flags.String("grpc.token", "", "celestia-node RPC auth token")
+	flags.String("grpc.namespace", "", "celestia namespace to use (hex encoded)")
+	flags.String("grpc.listen", "", "gRPC service listen address")
+	flags.String("grpc.network", "tcp", "gRPC service listen network type must be \"tcp\", \"tcp4\", \"tcp6\", \"unix\" or \"unixpacket\"")
+
+	return flags
+}
+
 func main() {
 	// TODO(tzdybal): extract configuration and mainCmd from main func
 	// TODO(tzdybal): read configuration from file (with viper)
-	rpcAddress := "http://127.0.0.1:26658"
-	rpcToken := ""
-	namespace := ""
-
-	listenAddress := "0.0.0.0:0"
-	listenNetwork := "tcp"
-
 	flags := []*pflag.FlagSet{
 		cmdnode.NodeFlags(),
 		p2p.Flags(),
@@ -54,11 +60,34 @@ func main() {
 		state.Flags(),
 	}
 
+	startCmd := cmdnode.Start(append(flags, grpcFlags())...)
+	if err := startCmd.MarkFlagRequired("grpc.token"); err != nil {
+		log.Fatal("grpc.token:", err)
+	}
+
+	if err := startCmd.MarkFlagRequired("grpc.namespace"); err != nil {
+		log.Fatal("grpc.namespace:", err)
+	}
+	startRunE := startCmd.RunE
+	startCmd.RunE = func(cmd *cobra.Command, args []string) error {
+		// Extract gRPC service flags
+		rpcAddress, _ := cmd.Flags().GetString("grpc.address")
+		rpcToken, _ := cmd.Flags().GetString("grpc.token")
+		nsString, _ := cmd.Flags().GetString("grpc.namespace")
+		listenAddress, _ := cmd.Flags().GetString("grpc.listen")
+		listenNetwork, _ := cmd.Flags().GetString("grpc.network")
+
+		// serve the gRPC service in a goroutine
+		go serve(cmd.Context(), rpcAddress, rpcToken, listenAddress, listenNetwork, nsString)
+
+		// Continue with the original start command execution
+		return startRunE(cmd, args)
+	}
+
 	var rootCmd = &cobra.Command{
-		Use:     "light [subcommand]",
-		Args:    cobra.NoArgs,
-		Short:   "Manage your Light node",
-		PostRun: func(_ *cobra.Command, _ []string) { serve(rpcAddress, rpcToken, namespace) },
+		Use:   "light [subcommand]",
+		Args:  cobra.NoArgs,
+		Short: "Manage your Light node",
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 			return cmdnode.PersistentPreRunEnv(cmd, node.Light, args)
 		},
@@ -66,36 +95,19 @@ func main() {
 
 	rootCmd.AddCommand(
 		cmdnode.Init(flags...),
-		cmdnode.Start(flags...),
+		startCmd,
 		cmdnode.AuthCmd(flags...),
 		cmdnode.ResetStore(flags...),
 		cmdnode.RemoveConfigCmd(flags...),
 		cmdnode.UpdateConfigCmd(flags...),
 	)
 
-	rootCmd.Flags().StringVar(&rpcAddress, "rpc.address", rpcAddress, "celestia-node RPC endpoint address")
-	rootCmd.Flags().StringVar(&rpcToken, "rpc.token", "", "celestia-node RPC auth token")
-	rootCmd.Flags().StringVar(&namespace, "namespace", "", "celestia namespace to use (hex encoded)")
-	rootCmd.Flags().StringVar(&listenAddress, "listen.address", listenAddress,
-		"Listen address")
-	rootCmd.Flags().StringVar(&listenNetwork, "listen.network", listenNetwork,
-		"Listen network type must be \"tcp\", \"tcp4\", \"tcp6\", \"unix\" or \"unixpacket\"")
-
-	if err := rootCmd.MarkFlagRequired("rpc.token"); err != nil {
-		log.Fatal("token:", err)
-	}
-
-	if err := rootCmd.MarkFlagRequired("namespace"); err != nil {
-		log.Fatal("namespace:", err)
-	}
-
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
 	}
 }
 
-func serve(rpcAddress string, rpcToken string, nsString string) {
-	ctx := context.Background()
+func serve(ctx context.Context, rpcAddress, rpcToken, listenAddress, listenNetwork, nsString string) {
 	client, err := rpc.NewClient(ctx, rpcAddress, rpcToken)
 	if err != nil {
 		log.Fatalln("failed to create celestia-node RPC client:", err)
@@ -114,10 +126,11 @@ func serve(rpcAddress string, rpcToken string, nsString string) {
 	// TODO(tzdybal): add configuration options for encryption
 	srv := proxy.NewServer(da, grpc.Creds(insecure.NewCredentials()))
 
-	lis, err := net.Listen("tcp", "")
+	lis, err := net.Listen(listenNetwork, listenAddress)
 	if err != nil {
 		log.Fatalln("failed to create network listener:", err)
 	}
+	defer lis.Close()
 	log.Infoln("serving celestia-da over gRPC on:", lis.Addr())
 	err = srv.Serve(lis)
 	if !errors.Is(err, grpc.ErrServerStopped) {
