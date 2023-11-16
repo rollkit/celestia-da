@@ -10,12 +10,13 @@ import (
 	rpc "github.com/celestiaorg/celestia-node/api/rpc/client"
 	"github.com/celestiaorg/celestia-node/share"
 	logging "github.com/ipfs/go-log/v2"
-	"github.com/rollkit/celestia-da"
-	"github.com/rollkit/go-da/proxy"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+
+	"github.com/rollkit/celestia-da"
+	"github.com/rollkit/go-da/proxy"
 )
 
 var log = logging.Logger("cmd")
