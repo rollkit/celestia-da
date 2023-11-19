@@ -39,8 +39,7 @@ func init() {
 	if err := startCmd.MarkFlagRequired("grpc.namespace"); err != nil {
 		log.Fatal("grpc.namespace:", err)
 	}
-	startRunE := startCmd.RunE
-	startCmd.RunE = func(cmd *cobra.Command, args []string) error {
+	startCmd.PreRun = func(cmd *cobra.Command, args []string) {
 		// Extract gRPC service flags
 		rpcAddress, _ := cmd.Flags().GetString("grpc.address")
 		rpcToken, _ := cmd.Flags().GetString("grpc.token")
@@ -50,9 +49,6 @@ func init() {
 
 		// serve the gRPC service in a goroutine
 		go serve(cmd.Context(), rpcAddress, rpcToken, listenAddress, listenNetwork, nsString)
-
-		// Continue with the original start command execution
-		return startRunE(cmd, args)
 	}
 
 	fullCmd.AddCommand(
