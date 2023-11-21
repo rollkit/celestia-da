@@ -8,6 +8,10 @@ import (
 	"os"
 
 	rpc "github.com/celestiaorg/celestia-node/api/rpc/client"
+	cmdnode "github.com/celestiaorg/celestia-node/cmd"
+	"github.com/celestiaorg/celestia-node/cmd/celestia/bridge"
+	"github.com/celestiaorg/celestia-node/cmd/celestia/full"
+	"github.com/celestiaorg/celestia-node/cmd/celestia/light"
 	"github.com/celestiaorg/celestia-node/share"
 	logging "github.com/ipfs/go-log/v2"
 	"github.com/spf13/cobra"
@@ -20,19 +24,6 @@ import (
 )
 
 var log = logging.Logger("cmd")
-
-// grpcFlags contain the flags related to the gRPC DAService
-func grpcFlags() *pflag.FlagSet {
-	flags := &pflag.FlagSet{}
-
-	flags.String("grpc.address", "http://127.0.0.1:26658", "celestia-node RPC endpoint address")
-	flags.String("grpc.token", "", "celestia-node RPC auth token")
-	flags.String("grpc.namespace", "", "celestia namespace to use (hex encoded)")
-	flags.String("grpc.listen", "", "gRPC service listen address")
-	flags.String("grpc.network", "tcp", "gRPC service listen network type must be \"tcp\", \"tcp4\", \"tcp6\", \"unix\" or \"unixpacket\"")
-
-	return flags
-}
 
 func serve(ctx context.Context, rpcAddress, rpcToken, listenAddress, listenNetwork, nsString string) {
 	client, err := rpc.NewClient(ctx, rpcAddress, rpcToken)
@@ -69,7 +60,63 @@ func serve(ctx context.Context, rpcAddress, rpcToken, listenAddress, listenNetwo
 	}
 }
 
+// WithPatchStart patches the start command to also run the gRPC Data Availability service
+func WithPatchStart(flags []*pflag.FlagSet) func(*cobra.Command) {
+	return func(c *cobra.Command) {
+		grpcFlags := &pflag.FlagSet{}
+		grpcFlags.String("grpc.address", "http://127.0.0.1:26658", "celestia-node RPC endpoint address")
+		grpcFlags.String("grpc.token", "", "celestia-node RPC auth token")
+		grpcFlags.String("grpc.namespace", "", "celestia namespace to use (hex encoded)")
+		grpcFlags.String("grpc.listen", "", "gRPC service listen address")
+		grpcFlags.String("grpc.network", "tcp", "gRPC service listen network type must be \"tcp\", \"tcp4\", \"tcp6\", \"unix\" or \"unixpacket\"")
+
+		fset := append(flags, grpcFlags)
+
+		for _, set := range fset {
+			c.Flags().AddFlagSet(set)
+		}
+
+		requiredFlags := []string{"grpc.token", "grpc.namespace"}
+		for _, required := range requiredFlags {
+			if err := c.MarkFlagRequired(required); err != nil {
+				log.Fatal(required, err)
+			}
+		}
+
+		preRun := func(cmd *cobra.Command, args []string) {
+			// Extract gRPC service flags
+			rpcAddress, _ := cmd.Flags().GetString("grpc.address")
+			rpcToken, _ := cmd.Flags().GetString("grpc.token")
+			nsString, _ := cmd.Flags().GetString("grpc.namespace")
+			listenAddress, _ := cmd.Flags().GetString("grpc.listen")
+			listenNetwork, _ := cmd.Flags().GetString("grpc.network")
+
+			// serve the gRPC service in a goroutine
+			go serve(cmd.Context(), rpcAddress, rpcToken, listenAddress, listenNetwork, nsString)
+		}
+
+		c.PreRun = preRun
+
+		c.Use = "start-da"
+
+		c.Short = `Starts Node daemon with the Data Availability Service. First stopping signal gracefully stops the Node and second terminates it.
+Options passed on start override configuration options only on start and are not persisted in config.`
+	}
+}
+
+// WithPatchNode returns the node command where the start command is patched with WithPatchStart
+func WithPatchNode() func(*cobra.Command, []*pflag.FlagSet) {
+	return func(c *cobra.Command, flags []*pflag.FlagSet) {
+		c.AddCommand(
+			cmdnode.Start(WithPatchStart(flags)),
+		)
+	}
+}
+
 func init() {
+	bridgeCmd := bridge.NewCommand(WithPatchNode())
+	lightCmd := light.NewCommand(WithPatchNode())
+	fullCmd := full.NewCommand(WithPatchNode())
 	rootCmd.AddCommand(lightCmd, bridgeCmd, fullCmd)
 }
 
