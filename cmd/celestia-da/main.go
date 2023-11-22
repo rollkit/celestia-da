@@ -99,7 +99,7 @@ func WithDataAvailabilityService(flags []*pflag.FlagSet) func(*cobra.Command) {
 	}
 }
 
-// WithSubcommands returns the node command where the start command is patched with WithPatchStart
+// WithSubcommands returns the node command where the start subcommand also starts the Data Availability gRPC service.
 func WithSubcommands() func(*cobra.Command, []*pflag.FlagSet) {
 	return func(c *cobra.Command, flags []*pflag.FlagSet) {
 		c.AddCommand(
