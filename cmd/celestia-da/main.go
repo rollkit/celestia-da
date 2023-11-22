@@ -60,8 +60,8 @@ func serve(ctx context.Context, rpcAddress, rpcToken, listenAddress, listenNetwo
 	}
 }
 
-// WithPatchStart patches the start command to also run the gRPC Data Availability service
-func WithPatchStart(flags []*pflag.FlagSet) func(*cobra.Command) {
+// WithDataAvailabilityService patches the start command to also run the gRPC Data Availability service
+func WithDataAvailabilityService(flags []*pflag.FlagSet) func(*cobra.Command) {
 	return func(c *cobra.Command) {
 		grpcFlags := &pflag.FlagSet{}
 		grpcFlags.String("grpc.address", "http://127.0.0.1:26658", "celestia-node RPC endpoint address")
@@ -96,27 +96,27 @@ func WithPatchStart(flags []*pflag.FlagSet) func(*cobra.Command) {
 		}
 
 		c.PreRun = preRun
-
-		c.Use = "start-da"
-
-		c.Short = `Starts Node daemon with the Data Availability Service. First stopping signal gracefully stops the Node and second terminates it.
-Options passed on start override configuration options only on start and are not persisted in config.`
 	}
 }
 
-// WithPatchNode returns the node command where the start command is patched with WithPatchStart
-func WithPatchNode() func(*cobra.Command, []*pflag.FlagSet) {
+// WithSubcommands returns the node command where the start command is patched with WithPatchStart
+func WithSubcommands() func(*cobra.Command, []*pflag.FlagSet) {
 	return func(c *cobra.Command, flags []*pflag.FlagSet) {
 		c.AddCommand(
-			cmdnode.Start(WithPatchStart(flags)),
+			cmdnode.Init(flags...),
+			cmdnode.Start(WithDataAvailabilityService(flags)),
+			cmdnode.AuthCmd(flags...),
+			cmdnode.ResetStore(flags...),
+			cmdnode.RemoveConfigCmd(flags...),
+			cmdnode.UpdateConfigCmd(flags...),
 		)
 	}
 }
 
 func init() {
-	bridgeCmd := bridge.NewCommand(WithPatchNode())
-	lightCmd := light.NewCommand(WithPatchNode())
-	fullCmd := full.NewCommand(WithPatchNode())
+	bridgeCmd := bridge.NewCommand(WithSubcommands())
+	lightCmd := light.NewCommand(WithSubcommands())
+	fullCmd := full.NewCommand(WithSubcommands())
 	rootCmd.AddCommand(lightCmd, bridgeCmd, fullCmd)
 }
 
