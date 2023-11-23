@@ -8,7 +8,10 @@ require (
 	github.com/celestiaorg/celestia-app v1.4.0
 	github.com/celestiaorg/celestia-node v0.12.0
 	github.com/celestiaorg/nmt v0.20.0
+	github.com/cristalhq/jwt v1.2.0
+	github.com/filecoin-project/go-jsonrpc v0.3.1
 	github.com/ipfs/go-log/v2 v2.5.1
+	github.com/mitchellh/go-homedir v1.1.0
 	github.com/ory/dockertest/v3 v3.10.0
 	github.com/rollkit/go-da v0.0.0-20231024133951-57bc36006772
 	github.com/spf13/cobra v1.8.0
@@ -76,7 +79,6 @@ require (
 	github.com/cosmos/ledger-cosmos-go v0.13.2 // indirect
 	github.com/crate-crypto/go-kzg-4844 v0.3.0 // indirect
 	github.com/creachadair/taskgroup v0.6.0 // indirect
-	github.com/cristalhq/jwt v1.2.0 // indirect
 	github.com/cskr/pubsub v1.0.2 // indirect
 	github.com/danieljoos/wincred v1.1.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
@@ -100,7 +102,6 @@ require (
 	github.com/ethereum/go-ethereum v1.13.2 // indirect
 	github.com/felixge/httpsnoop v1.0.1 // indirect
 	github.com/filecoin-project/dagstore v0.5.6 // indirect
-	github.com/filecoin-project/go-jsonrpc v0.3.1 // indirect
 	github.com/flynn/noise v1.0.0 // indirect
 	github.com/francoispqt/gojay v1.2.13 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
@@ -225,7 +226,6 @@ require (
 	github.com/mimoo/StrobeGo v0.0.0-20210601165009-122bf33a46e0 // indirect
 	github.com/minio/highwayhash v1.0.2 // indirect
 	github.com/minio/sha256-simd v1.0.1 // indirect
-	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mitchellh/go-testing-interface v1.14.1 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/mmcloughlin/addchain v0.4.0 // indirect
