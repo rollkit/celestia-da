@@ -9,9 +9,6 @@ import (
 
 	rpc "github.com/celestiaorg/celestia-node/api/rpc/client"
 	cmdnode "github.com/celestiaorg/celestia-node/cmd"
-	"github.com/celestiaorg/celestia-node/cmd/celestia/bridge"
-	"github.com/celestiaorg/celestia-node/cmd/celestia/full"
-	"github.com/celestiaorg/celestia-node/cmd/celestia/light"
 	"github.com/celestiaorg/celestia-node/share"
 	logging "github.com/ipfs/go-log/v2"
 	"github.com/spf13/cobra"
@@ -24,6 +21,14 @@ import (
 )
 
 var log = logging.Logger("cmd")
+
+const (
+	grpcAddrFlag      = "grpc.address"
+	grpcTokenFlag     = "grpc.token"
+	grpcNamespaceFlag = "grpc.namespace"
+	grpcListenFlag    = "grpc.listen"
+	grpcNetworkFlag   = "grpc.network"
+)
 
 func serve(ctx context.Context, rpcAddress, rpcToken, listenAddress, listenNetwork, nsString string) {
 	client, err := rpc.NewClient(ctx, rpcAddress, rpcToken)
@@ -64,11 +69,11 @@ func serve(ctx context.Context, rpcAddress, rpcToken, listenAddress, listenNetwo
 func WithDataAvailabilityService(flags []*pflag.FlagSet) func(*cobra.Command) {
 	return func(c *cobra.Command) {
 		grpcFlags := &pflag.FlagSet{}
-		grpcFlags.String("grpc.address", "http://127.0.0.1:26658", "celestia-node RPC endpoint address")
-		grpcFlags.String("grpc.token", "", "celestia-node RPC auth token")
-		grpcFlags.String("grpc.namespace", "", "celestia namespace to use (hex encoded)")
-		grpcFlags.String("grpc.listen", "", "gRPC service listen address")
-		grpcFlags.String("grpc.network", "tcp", "gRPC service listen network type must be \"tcp\", \"tcp4\", \"tcp6\", \"unix\" or \"unixpacket\"")
+		grpcFlags.String(grpcAddrFlag, "http://127.0.0.1:26658", "celestia-node RPC endpoint address")
+		grpcFlags.String(grpcTokenFlag, "", "celestia-node RPC auth token")
+		grpcFlags.String(grpcNamespaceFlag, "", "celestia namespace to use (hex encoded)")
+		grpcFlags.String(grpcListenFlag, "", "gRPC service listen address")
+		grpcFlags.String(grpcNetworkFlag, "tcp", "gRPC service listen network type must be \"tcp\", \"tcp4\", \"tcp6\", \"unix\" or \"unixpacket\"")
 
 		fset := append(flags, grpcFlags)
 
@@ -76,7 +81,7 @@ func WithDataAvailabilityService(flags []*pflag.FlagSet) func(*cobra.Command) {
 			c.Flags().AddFlagSet(set)
 		}
 
-		requiredFlags := []string{"grpc.token", "grpc.namespace"}
+		requiredFlags := []string{grpcTokenFlag, grpcNamespaceFlag}
 		for _, required := range requiredFlags {
 			if err := c.MarkFlagRequired(required); err != nil {
 				log.Fatal(required, err)
@@ -85,11 +90,11 @@ func WithDataAvailabilityService(flags []*pflag.FlagSet) func(*cobra.Command) {
 
 		preRun := func(cmd *cobra.Command, args []string) {
 			// Extract gRPC service flags
-			rpcAddress, _ := cmd.Flags().GetString("grpc.address")
-			rpcToken, _ := cmd.Flags().GetString("grpc.token")
-			nsString, _ := cmd.Flags().GetString("grpc.namespace")
-			listenAddress, _ := cmd.Flags().GetString("grpc.listen")
-			listenNetwork, _ := cmd.Flags().GetString("grpc.network")
+			rpcAddress, _ := cmd.Flags().GetString(grpcAddrFlag)
+			rpcToken, _ := cmd.Flags().GetString(grpcTokenFlag)
+			nsString, _ := cmd.Flags().GetString(grpcNamespaceFlag)
+			listenAddress, _ := cmd.Flags().GetString(grpcListenFlag)
+			listenNetwork, _ := cmd.Flags().GetString(grpcNetworkFlag)
 
 			// serve the gRPC service in a goroutine
 			go serve(cmd.Context(), rpcAddress, rpcToken, listenAddress, listenNetwork, nsString)
@@ -114,9 +119,9 @@ func WithSubcommands() func(*cobra.Command, []*pflag.FlagSet) {
 }
 
 func init() {
-	bridgeCmd := bridge.NewCommand(WithSubcommands())
-	lightCmd := light.NewCommand(WithSubcommands())
-	fullCmd := full.NewCommand(WithSubcommands())
+	bridgeCmd := cmdnode.NewBridge(WithSubcommands())
+	lightCmd := cmdnode.NewLight(WithSubcommands())
+	fullCmd := cmdnode.NewFull(WithSubcommands())
 	rootCmd.AddCommand(lightCmd, bridgeCmd, fullCmd)
 }
 
@@ -132,7 +137,7 @@ func run() error {
 }
 
 var rootCmd = &cobra.Command{
-	Use: "celestia [  bridge  ||  full ||  light  ] [subcommand]",
+	Use: "celestia-da [  bridge  ||  full ||  light  ] [subcommand]",
 	Short: `
 	    ____      __          __  _
 	  / ____/__  / /__  _____/ /_(_)___ _
