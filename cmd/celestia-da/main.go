@@ -23,11 +23,11 @@ import (
 var log = logging.Logger("cmd")
 
 const (
-	grpcAddrFlag      = "grpc.address"
-	grpcTokenFlag     = "grpc.token"
-	grpcNamespaceFlag = "grpc.namespace"
-	grpcListenFlag    = "grpc.listen"
-	grpcNetworkFlag   = "grpc.network"
+	grpcAddrFlag      = "da.grpc.address"
+	grpcTokenFlag     = "da.grpc.token"
+	grpcNamespaceFlag = "da.grpc.namespace"
+	grpcListenFlag    = "da.grpc.listen"
+	grpcNetworkFlag   = "da.grpc.network"
 )
 
 func serve(ctx context.Context, rpcAddress, rpcToken, listenAddress, listenNetwork, nsString string) {
