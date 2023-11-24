@@ -1,11 +1,17 @@
 DOCKER := $(shell which docker)
 DOCKER_BUF := $(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace bufbuild/buf
+LDFLAGS=-ldflags="-X '$(versioningPath).buildTime=$(shell date)' -X '$(versioningPath).lastCommit=$(shell git rev-parse HEAD)' -X '$(versioningPath).semanticVersion=$(shell git describe --tags --dirty=-dev 2>/dev/null || git rev-parse --abbrev-ref HEAD)'"
 
 # Define pkgs, run, and cover vairables for test so that we can override them in
 # the terminal more easily.
 pkgs := $(shell go list ./...)
 run := .
 count := 1
+
+build:
+	@echo "--> Building Celestia"
+	@go build -o build/ ${LDFLAGS} ./cmd/celestia-da
+.PHONY: build
 
 ## help: Show this help message
 help: Makefile
@@ -17,6 +23,7 @@ help: Makefile
 clean:
 	@echo "--> Clearing testcache"
 	@go clean --testcache
+	rm -rf build
 .PHONY: clean
 
 ## cover: generate to code coverage report.
@@ -54,7 +61,7 @@ fmt:
 .PHONY: fmt
 
 ## vet: Run go vet
-vet: 
+vet:
 	@echo "--> Running go vet"
 	@go vet $(pkgs)
 .PHONY: vet
