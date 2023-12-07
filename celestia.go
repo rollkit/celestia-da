@@ -6,6 +6,7 @@ import (
 	"log"
 	"strings"
 
+	"github.com/celestiaorg/celestia-app/pkg/appconsts"
 	"github.com/celestiaorg/celestia-app/x/blob/types"
 	rpc "github.com/celestiaorg/celestia-node/api/rpc/client"
 	"github.com/celestiaorg/celestia-node/blob"
@@ -29,6 +30,11 @@ func NewCelestiaDA(client *rpc.Client, namespace share.Namespace, ctx context.Co
 		namespace: namespace,
 		ctx:       ctx,
 	}
+}
+
+// MaxBlobSize returns the max blob size
+func (c *CelestiaDA) MaxBlobSize() (uint64, error) {
+	return appconsts.DefaultMaxBytes, nil
 }
 
 // Get returns Blob for each given ID, or an error.
