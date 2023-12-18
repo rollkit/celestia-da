@@ -79,12 +79,10 @@ func (c *CelestiaDA) Submit(daBlobs []da.Blob, daOptions *da.SubmitOptions) ([]d
 	if err != nil {
 		return nil, nil, err
 	}
-	blobOptions := &blob.SubmitOptions{}
+	blobOptions := blob.DefaultSubmitOptions()
 	if daOptions != nil {
 		blobOptions.Fee = daOptions.Fee
 		blobOptions.GasLimit = daOptions.Gas
-	} else {
-		blobOptions = blob.DefaultSubmitOptions()
 	}
 	height, err := c.client.Blob.Submit(c.ctx, blobs, blobOptions)
 	if err != nil {
