@@ -45,7 +45,7 @@ func (t *TestSuite) SetupSuite() {
 	}
 
 	// pulls an image, creates a container based on it and runs it
-	resource, err := pool.Run("ghcr.io/rollkit/local-celestia-devnet", "4ecd750", []string{})
+	resource, err := pool.Run("ghcr.io/rollkit/local-celestia-devnet", "76be922", []string{})
 	if err != nil {
 		t.Failf("Could not start resource", "error: %v\n", err)
 	}
@@ -75,12 +75,12 @@ func (t *TestSuite) SetupSuite() {
 	buf := new(bytes.Buffer)
 	opts.StdOut = buf
 	opts.StdErr = buf
-	_, err = resource.Exec([]string{"/bin/celestia", "bridge", "auth", "admin", "--node.store", "/home/celestia/bridge"}, opts)
+	_, err = resource.Exec([]string{"/bin/celestia-da", "bridge", "auth", "admin", "--node.store", "/home/celestia/bridge"}, opts)
 	if err != nil {
 		t.Failf("Could not execute command", "error: %v\n", err)
 	}
 
-	t.token = buf.String()
+	t.token = strings.TrimSpace(buf.String())
 }
 
 func (t *TestSuite) TearDownSuite() {

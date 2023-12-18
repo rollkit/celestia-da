@@ -353,4 +353,4 @@ replace (
 
 replace github.com/celestiaorg/celestia-node => github.com/celestiaorg/celestia-node v0.12.1-0.20231123165236-dd3b8e1411de
 
-replace github.com/rollkit/go-da => github.com/rollkit/go-da v0.0.0-20231218212149-e8a3026f5911
+replace github.com/rollkit/go-da => github.com/rollkit/go-da 7954d38be2c40d18e01d33763b19698e580c7a0a
