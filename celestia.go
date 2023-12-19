@@ -4,14 +4,18 @@ import (
 	"context"
 	"encoding/binary"
 	"log"
+	"math"
 	"strings"
 
 	"github.com/celestiaorg/celestia-app/pkg/appconsts"
 	"github.com/celestiaorg/celestia-app/x/blob/types"
+	apptypes "github.com/celestiaorg/celestia-app/x/blob/types"
 	rpc "github.com/celestiaorg/celestia-node/api/rpc/client"
 	"github.com/celestiaorg/celestia-node/blob"
 	"github.com/celestiaorg/celestia-node/share"
 	"github.com/celestiaorg/nmt"
+	sdktypes "github.com/cosmos/cosmos-sdk/types"
+	auth "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	"github.com/rollkit/go-da"
 )
@@ -79,12 +83,21 @@ func (c *CelestiaDA) Submit(daBlobs []da.Blob, daOptions *da.SubmitOptions) ([]d
 	if err != nil {
 		return nil, nil, err
 	}
-	blobOptions := blob.DefaultSubmitOptions()
+	options := blob.DefaultSubmitOptions()
 	if daOptions != nil {
-		blobOptions.Fee = daOptions.Fee
-		blobOptions.GasLimit = daOptions.Gas
+		minGasPrice := daOptions.MinGasPrice
+		options.GasLimit = daOptions.Gas
+		options.Fee = daOptions.Fee
+		if minGasPrice == 0 {
+			blobSizes := make([]uint32, len(blobs))
+			for i, blob := range blobs {
+				blobSizes[i] = uint32(len(blob.Data))
+			}
+			options.GasLimit = apptypes.EstimateGas(blobSizes, appconsts.DefaultGasPerBlobByte, auth.DefaultTxSizeCostPerByte)
+			options.Fee = sdktypes.NewInt(int64(math.Ceil(minGasPrice * float64(options.GasLimit)))).Int64()
+		}
 	}
-	height, err := c.client.Blob.Submit(c.ctx, blobs, blobOptions)
+	height, err := c.client.Blob.Submit(c.ctx, blobs, options)
 	if err != nil {
 		return nil, nil, err
 	}
