@@ -33,12 +33,13 @@ func NewCelestiaDA(client *rpc.Client, namespace share.Namespace, ctx context.Co
 }
 
 // MaxBlobSize returns the max blob size
-func (c *CelestiaDA) MaxBlobSize() (uint64, error) {
+func (c *CelestiaDA) MaxBlobSize(ctx context.Context) (uint64, error) {
+	// TODO: pass-through query to node, app
 	return appconsts.DefaultMaxBytes, nil
 }
 
 // Get returns Blob for each given ID, or an error.
-func (c *CelestiaDA) Get(ids []da.ID) ([]da.Blob, error) {
+func (c *CelestiaDA) Get(ctx context.Context, ids []da.ID) ([]da.Blob, error) {
 	var blobs []da.Blob
 	for _, id := range ids {
 		height, commitment := splitID(id)
@@ -52,7 +53,7 @@ func (c *CelestiaDA) Get(ids []da.ID) ([]da.Blob, error) {
 }
 
 // GetIDs returns IDs of all Blobs located in DA at given height.
-func (c *CelestiaDA) GetIDs(height uint64) ([]da.ID, error) {
+func (c *CelestiaDA) GetIDs(ctx context.Context, height uint64) ([]da.ID, error) {
 	var ids []da.ID
 	blobs, err := c.client.Blob.GetAll(c.ctx, height, []share.Namespace{c.namespace})
 	if err != nil {
@@ -68,13 +69,13 @@ func (c *CelestiaDA) GetIDs(height uint64) ([]da.ID, error) {
 }
 
 // Commit creates a Commitment for each given Blob.
-func (c *CelestiaDA) Commit(daBlobs []da.Blob) ([]da.Commitment, error) {
+func (c *CelestiaDA) Commit(ctx context.Context, daBlobs []da.Blob) ([]da.Commitment, error) {
 	_, commitments, err := c.blobsAndCommitments(daBlobs)
 	return commitments, err
 }
 
 // Submit submits the Blobs to Data Availability layer.
-func (c *CelestiaDA) Submit(daBlobs []da.Blob) ([]da.ID, []da.Proof, error) {
+func (c *CelestiaDA) Submit(ctx context.Context, daBlobs []da.Blob) ([]da.ID, []da.Proof, error) {
 	blobs, commitments, err := c.blobsAndCommitments(daBlobs)
 	if err != nil {
 		return nil, nil, err
@@ -122,7 +123,7 @@ func (c *CelestiaDA) blobsAndCommitments(daBlobs []da.Blob) ([]*blob.Blob, []da.
 }
 
 // Validate validates Commitments against the corresponding Proofs. This should be possible without retrieving the Blobs.
-func (c *CelestiaDA) Validate(ids []da.ID, daProofs []da.Proof) ([]bool, error) {
+func (c *CelestiaDA) Validate(ctx context.Context, ids []da.ID, daProofs []da.Proof) ([]bool, error) {
 	var included []bool
 	var proofs []*blob.Proof
 	for _, daProof := range daProofs {
