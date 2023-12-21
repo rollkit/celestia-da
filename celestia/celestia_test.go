@@ -51,42 +51,43 @@ func teardown(m *mockDA) {
 
 // TestCelestiaDA is the test suite function.
 func TestCelestiaDA(t *testing.T) {
+	ctx := context.TODO()
 	m := setup(t)
 	defer teardown(m)
 
 	t.Run("MaxBlobSize", func(t *testing.T) {
-		maxBlobSize, err := m.MaxBlobSize()
+		maxBlobSize, err := m.MaxBlobSize(ctx)
 		assert.NoError(t, err)
 		assert.Equal(t, uint64(appconsts.DefaultMaxBytes), maxBlobSize)
 	})
 
 	t.Run("Get_empty", func(t *testing.T) {
-		blobs, err := m.Get(nil)
+		blobs, err := m.Get(ctx, nil)
 		assert.NoError(t, err)
 		assert.Equal(t, 0, len(blobs))
 	})
 
 	t.Run("GetIDs_empty", func(t *testing.T) {
-		blobs, err := m.GetIDs(0)
+		blobs, err := m.GetIDs(ctx, 0)
 		assert.NoError(t, err)
 		assert.Equal(t, 0, len(blobs))
 	})
 
 	t.Run("Commit_empty", func(t *testing.T) {
-		commitments, err := m.Commit(nil)
+		commitments, err := m.Commit(ctx, nil)
 		assert.NoError(t, err)
 		assert.Equal(t, 0, len(commitments))
 	})
 
 	t.Run("Submit_empty", func(t *testing.T) {
-		blobs, proofs, err := m.Submit(nil, -1)
+		blobs, proofs, err := m.Submit(ctx, nil, -1)
 		assert.NoError(t, err)
 		assert.Equal(t, 0, len(blobs))
 		assert.Equal(t, 0, len(proofs))
 	})
 
 	t.Run("Validate_empty", func(t *testing.T) {
-		valids, err := m.Validate(nil, nil)
+		valids, err := m.Validate(ctx, nil, nil)
 		assert.NoError(t, err)
 		assert.Equal(t, 0, len(valids))
 	})
@@ -94,7 +95,7 @@ func TestCelestiaDA(t *testing.T) {
 	t.Run("Get_existing", func(t *testing.T) {
 		commitment, err := hex.DecodeString("1b454951cd722b2cf7be5b04554b76ccf48f65a7ad6af45055006994ce70fd9d")
 		assert.NoError(t, err)
-		blobs, err := m.Get([]ID{makeID(42, commitment)})
+		blobs, err := m.Get(ctx, []ID{makeID(42, commitment)})
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(blobs))
 		blob1 := blobs[0]
@@ -102,7 +103,7 @@ func TestCelestiaDA(t *testing.T) {
 	})
 
 	t.Run("GetIDs_existing", func(t *testing.T) {
-		ids, err := m.GetIDs(42)
+		ids, err := m.GetIDs(ctx, 42)
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(ids))
 		id1 := ids[0]
@@ -112,13 +113,13 @@ func TestCelestiaDA(t *testing.T) {
 	})
 
 	t.Run("Commit_existing", func(t *testing.T) {
-		commitments, err := m.Commit([]Blob{[]byte{0x00, 0x01, 0x02}})
+		commitments, err := m.Commit(ctx, []Blob{[]byte{0x00, 0x01, 0x02}})
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(commitments))
 	})
 
 	t.Run("Submit_existing", func(t *testing.T) {
-		blobs, proofs, err := m.Submit([]Blob{[]byte{0x00, 0x01, 0x02}}, -1)
+		blobs, proofs, err := m.Submit(ctx, []Blob{[]byte{0x00, 0x01, 0x02}}, -1)
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(blobs))
 		assert.Equal(t, 1, len(proofs))
@@ -126,14 +127,14 @@ func TestCelestiaDA(t *testing.T) {
 
 	t.Run("Submit_existing_with_gasprice_global", func(t *testing.T) {
 		m.CelestiaDA.gasPrice = 0.01
-		blobs, proofs, err := m.Submit([]Blob{[]byte{0x00, 0x01, 0x02}}, -1)
+		blobs, proofs, err := m.Submit(ctx, []Blob{[]byte{0x00, 0x01, 0x02}}, -1)
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(blobs))
 		assert.Equal(t, 1, len(proofs))
 	})
 
 	t.Run("Submit_existing_with_gasprice_override", func(t *testing.T) {
-		blobs, proofs, err := m.Submit([]Blob{[]byte{0x00, 0x01, 0x02}}, 0.5)
+		blobs, proofs, err := m.Submit(ctx, []Blob{[]byte{0x00, 0x01, 0x02}}, 0.5)
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(blobs))
 		assert.Equal(t, 1, len(proofs))
@@ -147,7 +148,7 @@ func TestCelestiaDA(t *testing.T) {
 		assert.NoError(t, err)
 		ids := []ID{makeID(42, commitment)}
 		proofs := []Proof{proofJSON}
-		valids, err := m.Validate(ids, proofs)
+		valids, err := m.Validate(ctx, ids, proofs)
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(valids))
 	})
