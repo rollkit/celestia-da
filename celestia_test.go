@@ -54,7 +54,7 @@ func (t *TestSuite) SetupSuite() {
 	// exponential backoff-retry, because the application in the container might not be ready to accept connections yet
 	pool.MaxWait = 60 * time.Second
 	if err := pool.Retry(func() error {
-		resp, err := http.Get(fmt.Sprintf("http://localhost:%s/balance", resource.GetPort("26659/tcp")))
+		resp, err := http.Get(fmt.Sprintf("http://localhost:%s/header/1", resource.GetPort("26659/tcp")))
 		if err != nil {
 			return err
 		}
@@ -70,9 +70,6 @@ func (t *TestSuite) SetupSuite() {
 	}); err != nil {
 		log.Fatalf("Could not start local-celestia-devnet: %s", err)
 	}
-
-	// wait a bit more
-	time.Sleep(time.Second)
 
 	opts := dockertest.ExecOptions{}
 	buf := new(bytes.Buffer)
