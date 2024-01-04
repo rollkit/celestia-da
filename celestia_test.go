@@ -71,6 +71,9 @@ func (t *TestSuite) SetupSuite() {
 		log.Fatalf("Could not start local-celestia-devnet: %s", err)
 	}
 
+	// wait a bit more
+	time.Sleep(time.Second)
+
 	opts := dockertest.ExecOptions{}
 	buf := new(bytes.Buffer)
 	opts.StdOut = buf
