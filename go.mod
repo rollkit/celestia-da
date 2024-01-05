@@ -6,7 +6,7 @@ replace github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alp
 
 require (
 	github.com/celestiaorg/celestia-app v1.6.0
-	github.com/celestiaorg/celestia-node v0.12.2-rc1
+	github.com/celestiaorg/celestia-node v0.12.2
 	github.com/celestiaorg/nmt v0.20.0
 	github.com/cristalhq/jwt v1.2.0
 	github.com/filecoin-project/go-jsonrpc v0.3.1
@@ -49,7 +49,7 @@ require (
 	github.com/btcsuite/btcd/btcec/v2 v2.3.2 // indirect
 	github.com/celestiaorg/go-ds-badger4 v0.0.0-20230712104058-7ede1c814ac5 // indirect
 	github.com/celestiaorg/go-fraud v0.2.0 // indirect
-	github.com/celestiaorg/go-header v0.4.1 // indirect
+	github.com/celestiaorg/go-header v0.5.1 // indirect
 	github.com/celestiaorg/go-libp2p-messenger v0.2.0 // indirect
 	github.com/celestiaorg/merkletree v0.0.0-20210714075610-a84dc3ddbbe4 // indirect
 	github.com/celestiaorg/quantum-gravity-bridge/v2 v2.1.2 // indirect
@@ -165,7 +165,7 @@ require (
 	github.com/influxdata/influxdb-client-go/v2 v2.12.2 // indirect
 	github.com/influxdata/line-protocol v0.0.0-20210311194329-9aa0e372d097 // indirect
 	github.com/ipfs/bbloom v0.0.4 // indirect
-	github.com/ipfs/boxo v0.15.0 // indirect
+	github.com/ipfs/boxo v0.16.0 // indirect
 	github.com/ipfs/go-block-format v0.2.0 // indirect
 	github.com/ipfs/go-blockservice v0.5.0 // indirect
 	github.com/ipfs/go-cid v0.4.1 // indirect
@@ -203,7 +203,7 @@ require (
 	github.com/libp2p/go-flow-metrics v0.1.0 // indirect
 	github.com/libp2p/go-libp2p v0.32.1 // indirect
 	github.com/libp2p/go-libp2p-asn-util v0.3.0 // indirect
-	github.com/libp2p/go-libp2p-kad-dht v0.25.1 // indirect
+	github.com/libp2p/go-libp2p-kad-dht v0.25.2 // indirect
 	github.com/libp2p/go-libp2p-kbucket v0.6.3 // indirect
 	github.com/libp2p/go-libp2p-pubsub v0.10.0 // indirect
 	github.com/libp2p/go-libp2p-record v0.2.0 // indirect
@@ -219,7 +219,7 @@ require (
 	github.com/marten-seemann/tcp v0.0.0-20210406111302-dfbc87cc63fd // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
-	github.com/matttproud/golang_protobuf_extensions v1.0.4 // indirect
+	github.com/matttproud/golang_protobuf_extensions/v2 v2.0.0 // indirect
 	github.com/miekg/dns v1.1.56 // indirect
 	github.com/mikioh/tcpinfo v0.0.0-20190314235526-30a79bb1804b // indirect
 	github.com/mikioh/tcpopt v0.0.0-20190314235656-172688c1accc // indirect
@@ -255,10 +255,10 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/polydawn/refmt v0.89.0 // indirect
-	github.com/prometheus/client_golang v1.17.0 // indirect
-	github.com/prometheus/client_model v0.4.1-0.20230718164431-9a2bf3000d16 // indirect
-	github.com/prometheus/common v0.44.0 // indirect
-	github.com/prometheus/procfs v0.11.1 // indirect
+	github.com/prometheus/client_golang v1.18.0 // indirect
+	github.com/prometheus/client_model v0.5.0 // indirect
+	github.com/prometheus/common v0.45.0 // indirect
+	github.com/prometheus/procfs v0.12.0 // indirect
 	github.com/pyroscope-io/client v0.7.2 // indirect
 	github.com/pyroscope-io/godeltaprof v0.1.2 // indirect
 	github.com/pyroscope-io/otel-profiling-go v0.4.0 // indirect
@@ -335,7 +335,7 @@ require (
 	google.golang.org/genproto v0.0.0-20231002182017-d307bd883b97 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20231002182017-d307bd883b97 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20231009173412-8bfb1ae86b6c // indirect
-	google.golang.org/protobuf v1.31.0 // indirect
+	google.golang.org/protobuf v1.32.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
