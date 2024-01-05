@@ -45,7 +45,7 @@ func (t *TestSuite) SetupSuite() {
 	}
 
 	// pulls an image, creates a container based on it and runs it
-	resource, err := pool.Run("ghcr.io/rollkit/local-celestia-devnet", "v0.12.2", []string{})
+	resource, err := pool.Run("ghcr.io/rollkit/local-celestia-devnet", "v0.12.5", []string{})
 	if err != nil {
 		t.Failf("Could not start resource", "error: %v\n", err)
 	}
