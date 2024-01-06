@@ -74,7 +74,7 @@ func (c *CelestiaDA) Commit(daBlobs []da.Blob) ([]da.Commitment, error) {
 }
 
 // Submit submits the Blobs to Data Availability layer.
-func (c *CelestiaDA) Submit(daBlobs []da.Blob) ([]da.ID, []da.Proof, error) {
+func (c *CelestiaDA) Submit(daBlobs [][]byte, options *da.SubmitOptions) ([][]byte, [][]byte, error) {
 	blobs, commitments, err := c.blobsAndCommitments(daBlobs)
 	if err != nil {
 		return nil, nil, err
