@@ -49,4 +49,5 @@ jobs:
         with:
           go-version: ${{ inputs.GO_VERSION }}
       - name: Integration Tests
-        run: echo "No integration tests yet"
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: make test
