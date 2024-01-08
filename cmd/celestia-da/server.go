@@ -9,7 +9,7 @@ import (
 	rpc "github.com/celestiaorg/celestia-node/api/rpc/client"
 	"github.com/celestiaorg/celestia-node/share"
 
-	"github.com/rollkit/celestia-da"
+	"github.com/rollkit/celestia-da/celestia"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"

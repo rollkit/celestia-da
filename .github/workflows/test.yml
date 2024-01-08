@@ -32,7 +32,7 @@ jobs:
         with:
           go-version: ${{ inputs.GO_VERSION }}
       - name: Run unit test
-        run: make test
+        run: make test-unit
       - name: upload coverage report
         uses: codecov/codecov-action@v3.1.4
         with:
@@ -49,4 +49,5 @@ jobs:
         with:
           go-version: ${{ inputs.GO_VERSION }}
       - name: Integration Tests
-        run: echo "No integration tests yet"
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: make test
