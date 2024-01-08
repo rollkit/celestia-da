@@ -2,9 +2,10 @@ DOCKER := $(shell which docker)
 DOCKER_BUF := $(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace bufbuild/buf
 LDFLAGS=-ldflags="-X '$(versioningPath).buildTime=$(shell date)' -X '$(versioningPath).lastCommit=$(shell git rev-parse HEAD)' -X '$(versioningPath).semanticVersion=$(shell git describe --tags --dirty=-dev 2>/dev/null || git rev-parse --abbrev-ref HEAD)'"
 
-# Define pkgs, run, and cover vairables for test so that we can override them in
+# Define all_pkgs, unit_pkgs, run, and cover vairables for test so that we can override them in
 # the terminal more easily.
-pkgs := $(shell go list ./...)
+all_pkgs := $(shell go list ./...)
+unit_pkgs := ./celestia
 run := .
 count := 1
 
@@ -30,7 +31,7 @@ clean:
 cover:
 	@echo "--> Generating Code Coverage"
 	@go install github.com/ory/go-acc@latest
-	@go-acc -o coverage.txt $(pkgs)
+	@go-acc -o coverage.txt $(unit_pkgs)
 .PHONY: cover
 
 ## deps: Install dependencies
@@ -63,14 +64,20 @@ fmt:
 ## vet: Run go vet
 vet:
 	@echo "--> Running go vet"
-	@go vet $(pkgs)
+	@go vet $(all_pkgs)
 .PHONY: vet
 
-## test: Running unit tests
+## test: Running all tests
 test: vet
-	@echo "--> Running unit tests"
-	@go test -v -race -covermode=atomic -coverprofile=coverage.txt $(pkgs) -run $(run) -count=$(count)
+	@echo "--> Running all tests"
+	@go test -v -race -covermode=atomic -coverprofile=coverage.txt $(all_pkgs) -run $(run) -count=$(count)
 .PHONY: test
+
+## test: Running unit tests
+test-unit: vet
+	@echo "--> Running unit tests"
+	@go test -v -race -covermode=atomic -coverprofile=coverage.txt $(unit_pkgs) -run $(run) -count=$(count)
+.PHONY: test-unit
 
 ### proto-gen: Generate protobuf files. Requires docker.
 #proto-gen:
