@@ -13,7 +13,7 @@ require (
 	github.com/ipfs/go-log/v2 v2.5.1
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/ory/dockertest/v3 v3.10.0
-	github.com/rollkit/go-da v0.0.0-20231024133951-57bc36006772
+	github.com/rollkit/go-da v0.0.0-20231225164956-a3533025ce47
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.8.4
