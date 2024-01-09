@@ -124,6 +124,13 @@ func TestCelestiaDA(t *testing.T) {
 		assert.Equal(t, 1, len(proofs))
 	})
 
+	t.Run("Submit_existing_with_gasprice", func(t *testing.T) {
+		blobs, proofs, err := m.Submit([]Blob{[]byte{0x00, 0x01, 0x02}}, 0.5)
+		assert.NoError(t, err)
+		assert.Equal(t, 1, len(blobs))
+		assert.Equal(t, 1, len(proofs))
+	})
+
 	t.Run("Validate_existing", func(t *testing.T) {
 		commitment, err := hex.DecodeString("1b454951cd722b2cf7be5b04554b76ccf48f65a7ad6af45055006994ce70fd9d")
 		assert.NoError(t, err)
