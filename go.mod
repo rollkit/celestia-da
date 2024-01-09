@@ -8,6 +8,7 @@ require (
 	github.com/celestiaorg/celestia-app v1.6.0
 	github.com/celestiaorg/celestia-node v0.12.2
 	github.com/celestiaorg/nmt v0.20.0
+	github.com/cosmos/cosmos-sdk v0.46.14
 	github.com/cristalhq/jwt v1.2.0
 	github.com/filecoin-project/go-jsonrpc v0.3.1
 	github.com/ipfs/go-log/v2 v2.5.1
@@ -69,7 +70,6 @@ require (
 	github.com/coreos/go-systemd/v22 v22.5.0 // indirect
 	github.com/cosmos/btcutil v1.0.5 // indirect
 	github.com/cosmos/cosmos-proto v1.0.0-alpha8 // indirect
-	github.com/cosmos/cosmos-sdk v0.46.14 // indirect
 	github.com/cosmos/cosmos-sdk/api v0.1.0 // indirect
 	github.com/cosmos/go-bip39 v1.0.0 // indirect
 	github.com/cosmos/gogoproto v1.4.11 // indirect
