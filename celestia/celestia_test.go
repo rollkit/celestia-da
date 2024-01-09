@@ -28,6 +28,8 @@ type Proof = []byte
 func setup(t *testing.T) *mockDA {
 	mockService := NewMockService()
 
+	t.Logf("mock json-rpc server listening on: %s", mockService.server.URL)
+
 	ctx := context.TODO()
 	client, err := rpc.NewClient(ctx, mockService.server.URL, "test")
 	assert.NoError(t, err)

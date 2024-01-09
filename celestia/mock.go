@@ -83,8 +83,6 @@ func NewMockService() *MockService {
 		server: testServ,
 	}
 
-	println("mock json-rpc server listening on: ", mockService.server.URL)
-
 	return mockService
 }
 
