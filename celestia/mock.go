@@ -11,16 +11,18 @@ import (
 	"github.com/filecoin-project/go-jsonrpc"
 )
 
-// / MockBlobAPI mocks the blob API
+// MockBlobAPI mocks the blob API
 type MockBlobAPI struct {
 	height uint64
 }
 
+// Submit mocks the blob.Submit method
 func (m *MockBlobAPI) Submit(context.Context, []*blob.Blob, *blob.SubmitOptions) (uint64, error) {
 	m.height += 1
 	return m.height, nil
 }
 
+// Get mocks the blob.Get method
 func (m *MockBlobAPI) Get(ctx context.Context, height uint64, ns share.Namespace, _ blob.Commitment) (*blob.Blob, error) {
 	data, err := hex.DecodeString("5468697320697320616e206578616d706c65206f6620736f6d6520626c6f622064617461")
 	if err != nil {
@@ -29,6 +31,7 @@ func (m *MockBlobAPI) Get(ctx context.Context, height uint64, ns share.Namespace
 	return blob.NewBlobV0(ns, data)
 }
 
+// GetAll mocks the blob.GetAll method
 func (m *MockBlobAPI) GetAll(ctx context.Context, height uint64, ns []share.Namespace) ([]*blob.Blob, error) {
 	if height == 0 {
 		return []*blob.Blob{}, nil
@@ -44,11 +47,13 @@ func (m *MockBlobAPI) GetAll(ctx context.Context, height uint64, ns []share.Name
 	return []*blob.Blob{b}, nil
 }
 
+// GetProof mocks the blob.GetProof method
 func (m *MockBlobAPI) GetProof(context.Context, uint64, share.Namespace, blob.Commitment) (*blob.Proof, error) {
 	proof := nmt.NewInclusionProof(0, 4, [][]byte{[]byte("test")}, true)
 	return &blob.Proof{&proof}, nil
 }
 
+// Included mocks the blob.Included method
 func (m *MockBlobAPI) Included(context.Context, uint64, share.Namespace, *blob.Proof, blob.Commitment) (bool, error) {
 	return true, nil
 }

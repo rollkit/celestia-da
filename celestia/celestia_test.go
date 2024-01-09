@@ -9,8 +9,9 @@ import (
 	rpc "github.com/celestiaorg/celestia-node/api/rpc/client"
 	"github.com/celestiaorg/celestia-node/share"
 	"github.com/celestiaorg/nmt"
-	"github.com/rollkit/go-da"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/rollkit/go-da"
 )
 
 // setup initializes the test instance and sets up common resources.

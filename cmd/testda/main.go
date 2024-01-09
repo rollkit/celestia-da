@@ -8,8 +8,9 @@ import (
 	"syscall"
 
 	logging "github.com/ipfs/go-log/v2"
-	"github.com/rollkit/celestia-da/celestia"
 	"github.com/spf13/cobra"
+
+	"github.com/rollkit/celestia-da/celestia"
 )
 
 var log = logging.Logger("cmd")
