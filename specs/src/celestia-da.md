@@ -54,7 +54,7 @@ The implementation calls [blob.Submit] RPC method with `DefaultSubmitOptions` on
 
 If `gasPrice` is less than zero, then it uses `app types` to `EstimateGas` based on the blob sizes and updates `GasLimit` and `Fee` on the `SubmitOptions` accordingly.
 
-This way the client increase the `gasPrice`
+This way the client increase the `gasPrice` to increase the fee for the transaction or use the default by passing a negative `gasPrice`.
 
 ### Validate
 
