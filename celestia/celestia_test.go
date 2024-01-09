@@ -4,70 +4,20 @@ import (
 	"context"
 	"encoding/hex"
 	"testing"
-	"time"
-
-	"net/http/httptest"
 
 	"github.com/celestiaorg/celestia-app/pkg/appconsts"
 	rpc "github.com/celestiaorg/celestia-node/api/rpc/client"
 	"github.com/celestiaorg/celestia-node/share"
-	"github.com/filecoin-project/go-jsonrpc"
+	"github.com/celestiaorg/nmt"
+	"github.com/rollkit/go-da"
 	"github.com/stretchr/testify/assert"
 )
-
-// / MockBlobAPI mocks the blob API
-type MockBlobAPI struct {
-}
-
-// MockService mocks the node RPC service
-type MockService struct {
-	blob   *MockBlobAPI
-	server *httptest.Server
-}
-
-// Close closes the server
-func (m *MockService) Close() {
-	m.server.Close()
-}
-
-// NewMockService returns the mock service
-func NewMockService() *MockService {
-	rpcServer := jsonrpc.NewServer()
-
-	blobAPI := &MockBlobAPI{}
-	rpcServer.Register("blob", blobAPI)
-
-	testServ := httptest.NewServer(rpcServer)
-	defer testServ.Close()
-
-	mockService := &MockService{
-		blob:   blobAPI,
-		server: testServ,
-	}
-
-	return mockService
-}
-
-// mockDA returns the mock DA
-type mockDA struct {
-	s *MockService
-	CelestiaDA
-}
-
-// teardown closes the client
-func (m *mockDA) teardown() {
-	m.client.Close()
-}
 
 // setup initializes the test instance and sets up common resources.
 func setup(t *testing.T) *mockDA {
 	mockService := NewMockService()
-	defer mockService.Close()
 
-	println("mock json-rpc server listening on: ", mockService.server.URL)
-
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-	defer cancel()
+	ctx := context.TODO()
 	client, err := rpc.NewClient(ctx, mockService.server.URL, "test")
 	assert.NoError(t, err)
 	ns, err := hex.DecodeString("0000c9761e8b221ae42f")
@@ -80,10 +30,16 @@ func setup(t *testing.T) *mockDA {
 	return &mockDA{mockService, *da}
 }
 
+// teardown closes the client
+func teardown(m *mockDA) {
+	m.client.Close()
+	m.s.Close()
+}
+
 // TestCelestiaDA is the test suite function.
 func TestCelestiaDA(t *testing.T) {
 	m := setup(t)
-	defer m.teardown()
+	defer teardown(m)
 
 	t.Run("MaxBlobSize", func(t *testing.T) {
 		maxBlobSize, err := m.MaxBlobSize()
@@ -120,5 +76,51 @@ func TestCelestiaDA(t *testing.T) {
 		valids, err := m.Validate(nil, nil)
 		assert.NoError(t, err)
 		assert.Equal(t, 0, len(valids))
+	})
+
+	t.Run("Get_existing", func(t *testing.T) {
+		commitment, err := hex.DecodeString("1b454951cd722b2cf7be5b04554b76ccf48f65a7ad6af45055006994ce70fd9d")
+		assert.NoError(t, err)
+		blobs, err := m.Get([]da.ID{makeID(42, commitment)})
+		assert.NoError(t, err)
+		assert.Equal(t, 1, len(blobs))
+		blob1 := blobs[0]
+		assert.Equal(t, "This is an example of some blob data", string(blob1))
+	})
+
+	t.Run("GetIDs_existing", func(t *testing.T) {
+		ids, err := m.GetIDs(42)
+		assert.NoError(t, err)
+		assert.Equal(t, 1, len(ids))
+		id1 := ids[0]
+		commitment, err := hex.DecodeString("1b454951cd722b2cf7be5b04554b76ccf48f65a7ad6af45055006994ce70fd9d")
+		assert.NoError(t, err)
+		assert.Equal(t, makeID(42, commitment), id1)
+	})
+
+	t.Run("Commit_existing", func(t *testing.T) {
+		commitments, err := m.Commit([]da.Blob{[]byte{0x00, 0x01, 0x02}})
+		assert.NoError(t, err)
+		assert.Equal(t, 1, len(commitments))
+	})
+
+	t.Run("Submit_existing", func(t *testing.T) {
+		blobs, proofs, err := m.Submit([]da.Blob{[]byte{0x00, 0x01, 0x02}})
+		assert.NoError(t, err)
+		assert.Equal(t, 1, len(blobs))
+		assert.Equal(t, 1, len(proofs))
+	})
+
+	t.Run("Validate_existing", func(t *testing.T) {
+		commitment, err := hex.DecodeString("1b454951cd722b2cf7be5b04554b76ccf48f65a7ad6af45055006994ce70fd9d")
+		assert.NoError(t, err)
+		proof := nmt.NewInclusionProof(0, 4, [][]byte{[]byte("test")}, true)
+		proofJSON, err := proof.MarshalJSON()
+		assert.NoError(t, err)
+		ids := []da.ID{makeID(42, commitment)}
+		proofs := []da.Proof{proofJSON}
+		valids, err := m.Validate(ids, proofs)
+		assert.NoError(t, err)
+		assert.Equal(t, 1, len(valids))
 	})
 }
