@@ -45,7 +45,7 @@ func (t *TestSuite) SetupSuite() {
 	}
 
 	// pulls an image, creates a container based on it and runs it
-	resource, err := pool.Run("ghcr.io/rollkit/local-celestia-devnet", "4ecd750", []string{})
+	resource, err := pool.Run("ghcr.io/rollkit/local-celestia-devnet", "v0.12.5", []string{})
 	if err != nil {
 		t.Failf("Could not start resource", "error: %v\n", err)
 	}
@@ -54,7 +54,7 @@ func (t *TestSuite) SetupSuite() {
 	// exponential backoff-retry, because the application in the container might not be ready to accept connections yet
 	pool.MaxWait = 60 * time.Second
 	if err := pool.Retry(func() error {
-		resp, err := http.Get(fmt.Sprintf("http://localhost:%s/balance", resource.GetPort("26659/tcp")))
+		resp, err := http.Get(fmt.Sprintf("http://localhost:%s/header/10", resource.GetPort("26659/tcp")))
 		if err != nil {
 			return err
 		}
@@ -63,7 +63,7 @@ func (t *TestSuite) SetupSuite() {
 		if err != nil {
 			return err
 		}
-		if strings.Contains(string(bz), "error") {
+		if strings.Contains(string(bz), "header: given height is from the future") {
 			return errors.New(string(bz))
 		}
 		return nil
@@ -75,12 +75,12 @@ func (t *TestSuite) SetupSuite() {
 	buf := new(bytes.Buffer)
 	opts.StdOut = buf
 	opts.StdErr = buf
-	_, err = resource.Exec([]string{"/bin/celestia", "bridge", "auth", "admin", "--node.store", "/home/celestia/bridge"}, opts)
+	_, err = resource.Exec([]string{"/bin/celestia-da", "bridge", "auth", "admin", "--node.store", "/home/celestia/bridge"}, opts)
 	if err != nil {
 		t.Failf("Could not execute command", "error: %v\n", err)
 	}
 
-	t.token = buf.String()
+	t.token = strings.TrimSpace(buf.String())
 }
 
 func (t *TestSuite) TearDownSuite() {
