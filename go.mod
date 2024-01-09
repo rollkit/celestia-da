@@ -350,3 +350,5 @@ replace (
 	github.com/filecoin-project/dagstore => github.com/celestiaorg/dagstore v0.0.0-20230824094345-537c012aa403
 	github.com/tendermint/tendermint => github.com/celestiaorg/celestia-core v1.29.0-tm-v0.34.29
 )
+
+replace github.com/rollkit/go-da => github.com/rollkit/go-da v0.0.2-0.20240109212456-5258ae15192c

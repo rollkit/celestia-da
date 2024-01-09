@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/binary"
 	"log"
+	"math"
 	"strings"
 
 	"github.com/celestiaorg/celestia-app/pkg/appconsts"
@@ -12,6 +13,8 @@ import (
 	"github.com/celestiaorg/celestia-node/blob"
 	"github.com/celestiaorg/celestia-node/share"
 	"github.com/celestiaorg/nmt"
+	sdktypes "github.com/cosmos/cosmos-sdk/types"
+	auth "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	"github.com/rollkit/go-da"
 )
@@ -74,12 +77,21 @@ func (c *CelestiaDA) Commit(daBlobs []da.Blob) ([]da.Commitment, error) {
 }
 
 // Submit submits the Blobs to Data Availability layer.
-func (c *CelestiaDA) Submit(daBlobs []da.Blob) ([]da.ID, []da.Proof, error) {
+func (c *CelestiaDA) Submit(daBlobs []da.Blob, gasPrice float64) ([]da.ID, []da.Proof, error) {
 	blobs, commitments, err := c.blobsAndCommitments(daBlobs)
 	if err != nil {
 		return nil, nil, err
 	}
-	height, err := c.client.Blob.Submit(c.ctx, blobs, blob.DefaultSubmitOptions())
+	options := blob.DefaultSubmitOptions()
+	if gasPrice != 0 {
+		blobSizes := make([]uint32, len(blobs))
+		for i, blob := range blobs {
+			blobSizes[i] = uint32(len(blob.Data))
+		}
+		options.GasLimit = types.EstimateGas(blobSizes, appconsts.DefaultGasPerBlobByte, auth.DefaultTxSizeCostPerByte)
+		options.Fee = sdktypes.NewInt(int64(math.Ceil(gasPrice * float64(options.GasLimit)))).Int64()
+	}
+	height, err := c.client.Blob.Submit(c.ctx, blobs, options)
 	if err != nil {
 		return nil, nil, err
 	}
