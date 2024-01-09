@@ -75,12 +75,17 @@ func (c *CelestiaDA) Commit(ctx context.Context, daBlobs []da.Blob) ([]da.Commit
 }
 
 // Submit submits the Blobs to Data Availability layer.
-func (c *CelestiaDA) Submit(ctx context.Context, daBlobs []da.Blob) ([]da.ID, []da.Proof, error) {
+func (c *CelestiaDA) Submit(ctx context.Context, daBlobs []da.Blob, daOptions *da.SubmitOptions) ([]da.ID, []da.Proof, error) {
 	blobs, commitments, err := c.blobsAndCommitments(daBlobs)
 	if err != nil {
 		return nil, nil, err
 	}
-	height, err := c.client.Blob.Submit(c.ctx, blobs, blob.DefaultSubmitOptions())
+	blobOptions := blob.DefaultSubmitOptions()
+	if daOptions != nil {
+		blobOptions.Fee = daOptions.Fee
+		blobOptions.GasLimit = daOptions.Gas
+	}
+	height, err := c.client.Blob.Submit(c.ctx, blobs, blobOptions)
 	if err != nil {
 		return nil, nil, err
 	}

@@ -80,7 +80,7 @@ func TestCelestiaDA(t *testing.T) {
 	})
 
 	t.Run("Submit_empty", func(t *testing.T) {
-		blobs, proofs, err := m.Submit(ctx, nil)
+		blobs, proofs, err := m.Submit(ctx, nil, nil)
 		assert.NoError(t, err)
 		assert.Equal(t, 0, len(blobs))
 		assert.Equal(t, 0, len(proofs))
@@ -119,7 +119,7 @@ func TestCelestiaDA(t *testing.T) {
 	})
 
 	t.Run("Submit_existing", func(t *testing.T) {
-		blobs, proofs, err := m.Submit(ctx, []Blob{[]byte{0x00, 0x01, 0x02}})
+		blobs, proofs, err := m.Submit(ctx, []Blob{[]byte{0x00, 0x01, 0x02}}, nil)
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(blobs))
 		assert.Equal(t, 1, len(proofs))
