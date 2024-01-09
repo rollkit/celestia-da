@@ -351,6 +351,4 @@ replace (
 	github.com/tendermint/tendermint => github.com/celestiaorg/celestia-core v1.29.0-tm-v0.34.29
 )
 
-replace github.com/celestiaorg/celestia-node => github.com/celestiaorg/celestia-node v0.12.1-0.20231123165236-dd3b8e1411de
-
-replace github.com/rollkit/go-da => github.com/rollkit/go-da v0.0.0-20231221215544-c8cfc07b4256
+replace github.com/rollkit/go-da => github.com/rollkit/go-da v0.0.0-20240103212905-7fcb3cd90f9d
