@@ -48,13 +48,13 @@ The implementation calls `blob.CreateCommitments` which does not call any RPC me
 
 Submit submits blobs and returns their ids and proofs.
 
-The implementation calls [blob.Submit] RPC method with `DefaultSubmitOptions` on the Celestia Node API if gasPrice is set to zero.
+The implementation calls [blob.Submit] RPC method with `DefaultSubmitOptions` on the Celestia Node API if `gasPrice` is greater than or equal to zero.
 
 `DefaultSubmitOptions` uses default values for `Fee` and `GasLimit`.
 
-If `gasPrice` is not zero, then it uses `app types` to `EstimateGas` based on the blob sizes and updates `GasLimit` and `Fee` on the `SubmitOptions` accordingly.
+If `gasPrice` is less than zero, then it uses `app types` to `EstimateGas` based on the blob sizes and updates `GasLimit` and `Fee` on the `SubmitOptions` accordingly.
 
-This way the client can default to `DefaultSubmitOptions` by passing in zero `gasPrice` and increase it to prioritise the transaction.
+This way the client increase the `gasPrice`
 
 ### Validate
 

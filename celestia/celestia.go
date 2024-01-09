@@ -83,7 +83,7 @@ func (c *CelestiaDA) Submit(daBlobs []da.Blob, gasPrice float64) ([]da.ID, []da.
 		return nil, nil, err
 	}
 	options := blob.DefaultSubmitOptions()
-	if gasPrice != 0 {
+	if gasPrice >= 0 {
 		blobSizes := make([]uint32, len(blobs))
 		for i, blob := range blobs {
 			blobSizes[i] = uint32(len(blob.Data))
