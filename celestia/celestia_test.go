@@ -10,9 +10,19 @@ import (
 	"github.com/celestiaorg/celestia-node/share"
 	"github.com/celestiaorg/nmt"
 	"github.com/stretchr/testify/assert"
-
-	"github.com/rollkit/go-da"
 )
+
+// Blob is the data submitted/received from DA interface.
+type Blob = []byte
+
+// ID should contain serialized data required by the implementation to find blob in Data Availability layer.
+type ID = []byte
+
+// Commitment should contain serialized cryptographic commitment to Blob value.
+type Commitment = []byte
+
+// Proof should contain serialized proof of inclusion (publication) of Blob in Data Availability layer.
+type Proof = []byte
 
 // setup initializes the test instance and sets up common resources.
 func setup(t *testing.T) *mockDA {
@@ -82,7 +92,7 @@ func TestCelestiaDA(t *testing.T) {
 	t.Run("Get_existing", func(t *testing.T) {
 		commitment, err := hex.DecodeString("1b454951cd722b2cf7be5b04554b76ccf48f65a7ad6af45055006994ce70fd9d")
 		assert.NoError(t, err)
-		blobs, err := m.Get([]da.ID{makeID(42, commitment)})
+		blobs, err := m.Get([]ID{makeID(42, commitment)})
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(blobs))
 		blob1 := blobs[0]
@@ -100,13 +110,13 @@ func TestCelestiaDA(t *testing.T) {
 	})
 
 	t.Run("Commit_existing", func(t *testing.T) {
-		commitments, err := m.Commit([]da.Blob{[]byte{0x00, 0x01, 0x02}})
+		commitments, err := m.Commit([]Blob{[]byte{0x00, 0x01, 0x02}})
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(commitments))
 	})
 
 	t.Run("Submit_existing", func(t *testing.T) {
-		blobs, proofs, err := m.Submit([]da.Blob{[]byte{0x00, 0x01, 0x02}})
+		blobs, proofs, err := m.Submit([]Blob{[]byte{0x00, 0x01, 0x02}})
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(blobs))
 		assert.Equal(t, 1, len(proofs))
@@ -118,8 +128,8 @@ func TestCelestiaDA(t *testing.T) {
 		proof := nmt.NewInclusionProof(0, 4, [][]byte{[]byte("test")}, true)
 		proofJSON, err := proof.MarshalJSON()
 		assert.NoError(t, err)
-		ids := []da.ID{makeID(42, commitment)}
-		proofs := []da.Proof{proofJSON}
+		ids := []ID{makeID(42, commitment)}
+		proofs := []Proof{proofJSON}
 		valids, err := m.Validate(ids, proofs)
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(valids))
