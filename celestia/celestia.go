@@ -85,6 +85,10 @@ func (c *CelestiaDA) Submit(daBlobs []da.Blob, gasPrice float64) ([]da.ID, []da.
 		return nil, nil, err
 	}
 	options := blob.DefaultSubmitOptions()
+	// if gas price was configured globally use that as the default
+	if c.gasPrice >= 0 && gasPrice < 0 {
+		gasPrice = c.gasPrice
+	}
 	if gasPrice >= 0 {
 		blobSizes := make([]uint32, len(blobs))
 		for i, blob := range blobs {
