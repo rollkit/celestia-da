@@ -12,7 +12,7 @@ const (
 	grpcNamespaceFlag = "da.grpc.namespace"
 	grpcListenFlag    = "da.grpc.listen"
 	grpcNetworkFlag   = "da.grpc.network"
-	gasPriceFlag      = "da.gasprice"
+	grpcGasPriceFlag  = "da.grpc.gasprice"
 )
 
 // WithDataAvailabilityService patches the start command to also run the gRPC Data Availability service
@@ -24,7 +24,7 @@ func WithDataAvailabilityService(flags []*pflag.FlagSet) func(*cobra.Command) {
 		grpcFlags.String(grpcNamespaceFlag, "", "celestia namespace to use (hex encoded)")
 		grpcFlags.String(grpcListenFlag, "127.0.0.1:0", "gRPC service listen address")
 		grpcFlags.String(grpcNetworkFlag, "tcp", "gRPC service listen network type must be \"tcp\", \"tcp4\", \"tcp6\", \"unix\" or \"unixpacket\"")
-		grpcFlags.Float64(gasPriceFlag, -1, "gas price for estimating fee (utia/gas) default: -1 for default fees")
+		grpcFlags.Float64(grpcGasPriceFlag, -1, "gas price for estimating fee (utia/gas) default: -1 for default fees")
 
 		fset := append(flags, grpcFlags)
 
@@ -43,7 +43,7 @@ func WithDataAvailabilityService(flags []*pflag.FlagSet) func(*cobra.Command) {
 			nsString, _ := cmd.Flags().GetString(grpcNamespaceFlag)
 			listenAddress, _ := cmd.Flags().GetString(grpcListenFlag)
 			listenNetwork, _ := cmd.Flags().GetString(grpcNetworkFlag)
-			gasPrice, _ := cmd.Flags().GetFloat64(gasPriceFlag)
+			gasPrice, _ := cmd.Flags().GetFloat64(grpcGasPriceFlag)
 
 			if rpcToken == "" {
 				token, err := authToken(cmdnode.StorePath(c.Context()))
