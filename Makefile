@@ -1,6 +1,6 @@
 DOCKER := $(shell which docker)
 DOCKER_BUF := $(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace bufbuild/buf
-LDFLAGS=-ldflags="-X '$(versioningPath).buildTime=$(shell date)' -X '$(versioningPath).lastCommit=$(shell git rev-parse HEAD)' -X '$(versioningPath).semanticVersion=$(shell git describe --tags --dirty=-dev 2>/dev/null || git rev-parse --abbrev-ref HEAD)'"
+LDFLAGS=-ldflags="-X '$(versioningPath).buildTime=$(shell date)' -X '$(versioningPath).lastCommit=$(shell git rev-parse HEAD)' -X '$(versioningPath).semanticVersion=$(shell git describe --tags --dirty=-dev 2>/dev/null || git rev-parse --abbrev-ref HEAD)' -X '$(versioningPath).nodeVersion=$(shell go list -m all | grep celestia-node | cut -d" " -f2)'"
 
 # Define all_pkgs, unit_pkgs, run, and cover vairables for test so that we can override them in
 # the terminal more easily.
@@ -10,7 +10,7 @@ run := .
 count := 1
 
 build:
-	@echo "--> Building Celestia"
+	@echo "--> Building celestia-da"
 	@go build -o build/ ${LDFLAGS} ./cmd/celestia-da
 .PHONY: build
 
