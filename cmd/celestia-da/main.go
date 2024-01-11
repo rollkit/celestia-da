@@ -31,7 +31,7 @@ func init() {
 	bridgeCmd := cmdnode.NewBridge(WithSubcommands())
 	lightCmd := cmdnode.NewLight(WithSubcommands())
 	fullCmd := cmdnode.NewFull(WithSubcommands())
-	rootCmd.AddCommand(lightCmd, bridgeCmd, fullCmd)
+	rootCmd.AddCommand(lightCmd, bridgeCmd, fullCmd, versionCmd)
 }
 
 func main() {
