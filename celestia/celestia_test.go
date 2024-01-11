@@ -37,7 +37,7 @@ func setup(t *testing.T) *mockDA {
 	assert.NoError(t, err)
 	namespace, err := share.NewBlobNamespaceV0(ns)
 	assert.NoError(t, err)
-	da := NewCelestiaDA(client, namespace, ctx)
+	da := NewCelestiaDA(client, namespace, -1, ctx)
 	assert.Equal(t, da.client, client)
 
 	return &mockDA{mockService, *da}

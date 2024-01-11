@@ -23,14 +23,16 @@ import (
 type CelestiaDA struct {
 	client    *rpc.Client
 	namespace share.Namespace
+	gasPrice  float64
 	ctx       context.Context
 }
 
 // NewCelestiaDA returns an instance of CelestiaDA
-func NewCelestiaDA(client *rpc.Client, namespace share.Namespace, ctx context.Context) *CelestiaDA {
+func NewCelestiaDA(client *rpc.Client, namespace share.Namespace, gasPrice float64, ctx context.Context) *CelestiaDA {
 	return &CelestiaDA{
 		client:    client,
 		namespace: namespace,
+		gasPrice:  gasPrice,
 		ctx:       ctx,
 	}
 }
@@ -95,7 +97,7 @@ func (c *CelestiaDA) Submit(daBlobs []da.Blob, gasPrice float64) ([]da.ID, []da.
 	if err != nil {
 		return nil, nil, err
 	}
-	log.Println("successfully submitted blobs", "height", height)
+	log.Println("successfully submitted blobs", "height", height, "gas", options.GasLimit, "fee", options.Fee)
 	ids := make([]da.ID, len(daBlobs))
 	proofs := make([]da.Proof, len(daBlobs))
 	for i, commitment := range commitments {
