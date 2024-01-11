@@ -37,7 +37,7 @@ func setup(t *testing.T) *mockDA {
 	assert.NoError(t, err)
 	namespace, err := share.NewBlobNamespaceV0(ns)
 	assert.NoError(t, err)
-	da := NewCelestiaDA(client, namespace, ctx)
+	da := NewCelestiaDA(client, namespace, -1, ctx)
 	assert.Equal(t, da.client, client)
 
 	return &mockDA{mockService, *da}
@@ -124,7 +124,15 @@ func TestCelestiaDA(t *testing.T) {
 		assert.Equal(t, 1, len(proofs))
 	})
 
-	t.Run("Submit_existing_with_gasprice", func(t *testing.T) {
+	t.Run("Submit_existing_with_gasprice_global", func(t *testing.T) {
+		m.CelestiaDA.gasPrice = 0.01
+		blobs, proofs, err := m.Submit([]Blob{[]byte{0x00, 0x01, 0x02}}, -1)
+		assert.NoError(t, err)
+		assert.Equal(t, 1, len(blobs))
+		assert.Equal(t, 1, len(proofs))
+	})
+
+	t.Run("Submit_existing_with_gasprice_override", func(t *testing.T) {
 		blobs, proofs, err := m.Submit([]Blob{[]byte{0x00, 0x01, 0x02}}, 0.5)
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(blobs))

@@ -23,14 +23,16 @@ import (
 type CelestiaDA struct {
 	client    *rpc.Client
 	namespace share.Namespace
+	gasPrice  float64
 	ctx       context.Context
 }
 
 // NewCelestiaDA returns an instance of CelestiaDA
-func NewCelestiaDA(client *rpc.Client, namespace share.Namespace, ctx context.Context) *CelestiaDA {
+func NewCelestiaDA(client *rpc.Client, namespace share.Namespace, gasPrice float64, ctx context.Context) *CelestiaDA {
 	return &CelestiaDA{
 		client:    client,
 		namespace: namespace,
+		gasPrice:  gasPrice,
 		ctx:       ctx,
 	}
 }
@@ -83,6 +85,10 @@ func (c *CelestiaDA) Submit(daBlobs []da.Blob, gasPrice float64) ([]da.ID, []da.
 		return nil, nil, err
 	}
 	options := blob.DefaultSubmitOptions()
+	// if gas price was configured globally use that as the default
+	if c.gasPrice >= 0 && gasPrice < 0 {
+		gasPrice = c.gasPrice
+	}
 	if gasPrice >= 0 {
 		blobSizes := make([]uint32, len(blobs))
 		for i, blob := range blobs {
@@ -95,7 +101,7 @@ func (c *CelestiaDA) Submit(daBlobs []da.Blob, gasPrice float64) ([]da.ID, []da.
 	if err != nil {
 		return nil, nil, err
 	}
-	log.Println("successfully submitted blobs", "height", height)
+	log.Println("successfully submitted blobs", "height", height, "gas", options.GasLimit, "fee", options.Fee)
 	ids := make([]da.ID, len(daBlobs))
 	proofs := make([]da.Proof, len(daBlobs))
 	for i, commitment := range commitments {

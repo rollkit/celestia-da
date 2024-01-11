@@ -17,7 +17,7 @@ import (
 	"github.com/rollkit/go-da/proxy"
 )
 
-func serve(ctx context.Context, rpcAddress, rpcToken, listenAddress, listenNetwork, nsString string) {
+func serve(ctx context.Context, rpcAddress, rpcToken, listenAddress, listenNetwork, nsString string, gasPrice float64) {
 	client, err := rpc.NewClient(ctx, rpcAddress, rpcToken)
 	if err != nil {
 		log.Fatalln("failed to create celestia-node RPC client:", err)
@@ -32,7 +32,7 @@ func serve(ctx context.Context, rpcAddress, rpcToken, listenAddress, listenNetwo
 		log.Fatalln("invalid namespace:", err)
 	}
 
-	da := celestia.NewCelestiaDA(client, namespace, ctx)
+	da := celestia.NewCelestiaDA(client, namespace, gasPrice, ctx)
 	// TODO(tzdybal): add configuration options for encryption
 	srv := proxy.NewServer(da, grpc.Creds(insecure.NewCredentials()))
 

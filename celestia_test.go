@@ -100,7 +100,7 @@ func (t *TestSuite) TestCelestiaDA() {
 	t.Require().NoError(err)
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
 	defer cancel()
-	da := celestia.NewCelestiaDA(client, ns, ctx)
+	da := celestia.NewCelestiaDA(client, ns, -1, ctx)
 	test.RunDATestSuite(t.T(), da)
 }
 
