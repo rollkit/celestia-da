@@ -22,7 +22,7 @@ import (
 	"github.com/rollkit/go-da/test"
 )
 
-const localCelestiaDevnetImageVersion = "v0.12.5"
+const localCelestiaDevnetImageVersion = "v0.12.6"
 
 type TestSuite struct {
 	suite.Suite
