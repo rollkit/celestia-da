@@ -38,16 +38,17 @@ func NewCelestiaDA(client *rpc.Client, namespace share.Namespace, gasPrice float
 }
 
 // MaxBlobSize returns the max blob size
-func (c *CelestiaDA) MaxBlobSize() (uint64, error) {
+func (c *CelestiaDA) MaxBlobSize(ctx context.Context) (uint64, error) {
+	// TODO: pass-through query to node, app
 	return appconsts.DefaultMaxBytes, nil
 }
 
 // Get returns Blob for each given ID, or an error.
-func (c *CelestiaDA) Get(ids []da.ID) ([]da.Blob, error) {
+func (c *CelestiaDA) Get(ctx context.Context, ids []da.ID) ([]da.Blob, error) {
 	var blobs []da.Blob
 	for _, id := range ids {
 		height, commitment := splitID(id)
-		blob, err := c.client.Blob.Get(c.ctx, height, c.namespace, commitment)
+		blob, err := c.client.Blob.Get(ctx, height, c.namespace, commitment)
 		if err != nil {
 			return nil, err
 		}
@@ -57,9 +58,9 @@ func (c *CelestiaDA) Get(ids []da.ID) ([]da.Blob, error) {
 }
 
 // GetIDs returns IDs of all Blobs located in DA at given height.
-func (c *CelestiaDA) GetIDs(height uint64) ([]da.ID, error) {
+func (c *CelestiaDA) GetIDs(ctx context.Context, height uint64) ([]da.ID, error) {
 	var ids []da.ID
-	blobs, err := c.client.Blob.GetAll(c.ctx, height, []share.Namespace{c.namespace})
+	blobs, err := c.client.Blob.GetAll(ctx, height, []share.Namespace{c.namespace})
 	if err != nil {
 		if strings.Contains(err.Error(), blob.ErrBlobNotFound.Error()) {
 			return nil, nil
@@ -73,13 +74,13 @@ func (c *CelestiaDA) GetIDs(height uint64) ([]da.ID, error) {
 }
 
 // Commit creates a Commitment for each given Blob.
-func (c *CelestiaDA) Commit(daBlobs []da.Blob) ([]da.Commitment, error) {
+func (c *CelestiaDA) Commit(ctx context.Context, daBlobs []da.Blob) ([]da.Commitment, error) {
 	_, commitments, err := c.blobsAndCommitments(daBlobs)
 	return commitments, err
 }
 
 // Submit submits the Blobs to Data Availability layer.
-func (c *CelestiaDA) Submit(daBlobs []da.Blob, gasPrice float64) ([]da.ID, []da.Proof, error) {
+func (c *CelestiaDA) Submit(ctx context.Context, daBlobs []da.Blob, gasPrice float64) ([]da.ID, []da.Proof, error) {
 	blobs, commitments, err := c.blobsAndCommitments(daBlobs)
 	if err != nil {
 		return nil, nil, err
@@ -97,7 +98,7 @@ func (c *CelestiaDA) Submit(daBlobs []da.Blob, gasPrice float64) ([]da.ID, []da.
 		options.GasLimit = types.EstimateGas(blobSizes, appconsts.DefaultGasPerBlobByte, auth.DefaultTxSizeCostPerByte)
 		options.Fee = sdktypes.NewInt(int64(math.Ceil(gasPrice * float64(options.GasLimit)))).Int64()
 	}
-	height, err := c.client.Blob.Submit(c.ctx, blobs, options)
+	height, err := c.client.Blob.Submit(ctx, blobs, options)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -106,7 +107,7 @@ func (c *CelestiaDA) Submit(daBlobs []da.Blob, gasPrice float64) ([]da.ID, []da.
 	proofs := make([]da.Proof, len(daBlobs))
 	for i, commitment := range commitments {
 		ids[i] = makeID(height, commitment)
-		proof, err := c.client.Blob.GetProof(c.ctx, height, c.namespace, commitment)
+		proof, err := c.client.Blob.GetProof(ctx, height, c.namespace, commitment)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -140,7 +141,7 @@ func (c *CelestiaDA) blobsAndCommitments(daBlobs []da.Blob) ([]*blob.Blob, []da.
 }
 
 // Validate validates Commitments against the corresponding Proofs. This should be possible without retrieving the Blobs.
-func (c *CelestiaDA) Validate(ids []da.ID, daProofs []da.Proof) ([]bool, error) {
+func (c *CelestiaDA) Validate(ctx context.Context, ids []da.ID, daProofs []da.Proof) ([]bool, error) {
 	var included []bool
 	var proofs []*blob.Proof
 	for _, daProof := range daProofs {
@@ -156,7 +157,7 @@ func (c *CelestiaDA) Validate(ids []da.ID, daProofs []da.Proof) ([]bool, error) 
 		// TODO(tzdybal): for some reason, if proof doesn't match commitment, API returns (false, "blob: invalid proof")
 		//    but analysis of the code in celestia-node implies this should never happen - maybe it's caused by openrpc?
 		//    there is no way of gently handling errors here, but returned value is fine for us
-		isIncluded, _ := c.client.Blob.Included(c.ctx, height, c.namespace, proofs[i], commitment)
+		isIncluded, _ := c.client.Blob.Included(ctx, height, c.namespace, proofs[i], commitment)
 		included = append(included, isIncluded)
 	}
 	return included, nil

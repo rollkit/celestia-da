@@ -22,6 +22,8 @@ import (
 	"github.com/rollkit/go-da/test"
 )
 
+const localCelestiaDevnetImageVersion = "v0.12.5"
+
 type TestSuite struct {
 	suite.Suite
 
@@ -45,7 +47,7 @@ func (t *TestSuite) SetupSuite() {
 	}
 
 	// pulls an image, creates a container based on it and runs it
-	resource, err := pool.Run("ghcr.io/rollkit/local-celestia-devnet", "v0.12.5", []string{})
+	resource, err := pool.Run("ghcr.io/rollkit/local-celestia-devnet", localCelestiaDevnetImageVersion, []string{})
 	if err != nil {
 		t.Failf("Could not start resource", "error: %v\n", err)
 	}
