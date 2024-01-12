@@ -37,14 +37,12 @@ jobs:
   release:
     needs: [lint, test]
     runs-on: ubuntu-latest
-    if: |
-      github.event_name == 'workflow_dispatch' ||
-      (github.event_name == 'push' && contains(github.ref, 'refs/tags/v'))
+    if: ${{ github.event_name == 'workflow_dispatch' }}
     permissions: "write-all"
     steps:
       - uses: actions/checkout@v4
       - name: Version Release
         uses: rollkit/.github/.github/actions/version-release@v0.2.2
         with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
+          github-token: ${{secrets.PAT_FOR_DOCKER_TRIGGER}}
           version-bump: ${{inputs.version}}
