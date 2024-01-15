@@ -46,17 +46,11 @@ to print the build information including the bundled celestia-node version.
 | Flag                         | Usage                                   | Default                     |
 | ---------------------------- |-----------------------------------------|-----------------------------|
 | da.grpc.namespace            | celestia namespace to use (hex encoded) | none; required              |
-| ---------------------------- |-----------------------------------------|-----------------------------|
 | da.grpc.address              | celestia-node RPC endpoint address      | http://127.0.0.1:26658      |
-| ---------------------------- |-----------------------------------------|-----------------------------|
 | da.grpc.listen               | gRPC service listen address             | 127.0.0.1:0                 |
-| ---------------------------- |-----------------------------------------|-----------------------------|
 | da.grpc.network              | gRPC service listen network type        | "tcp"                       |
-| ---------------------------- |-----------------------------------------|-----------------------------|
 | da.grpc.token                | celestia-node RPC auth token            | --node.store auto generated |
-| ---------------------------- |-----------------------------------------|-----------------------------|
 | da.grpc.gasprice             | gas price for estimating fee (utia/gas) | -1 celestia-node deafult    |
-| ---------------------------- |-----------------------------------------|-----------------------------|
 
 ### Tools
 
