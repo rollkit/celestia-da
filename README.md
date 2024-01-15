@@ -40,6 +40,16 @@ namespace on the celestia network.
 Note that celestia-da version may differ from the bundled celestia-node version. Use the `celestia-da version` command
 to print the build information including the bundled celestia-node version.
 
+To start a celestia-da instance, use the preferred node type with `start` command along with the gRPC specific flags as documented below.
+
+## Example
+
+Run celestia-da light mainnet node with a default DA interface server accepting blobs on a randomly chosen namespace:
+
+    celestia-da light start --core.ip <public ip> --da.grpc.namespace $(openssl rand -hex 10)
+
+Note that the celestia-node RPC auth token is auto generated using the default celestia-node store. If passed, the `da.grpc.token` flag
+will override the default auth token.
 
 ## Flags
 
@@ -51,6 +61,8 @@ to print the build information including the bundled celestia-node version.
 | `da.grpc.network`              | gRPC service listen network type        | `tcp`                         |
 | `da.grpc.token`                | celestia-node RPC auth token            | `--node.store` auto generated |
 | `da.grpc.gasprice`             | gas price for estimating fee (`utia/gas`) | -1 celestia-node deafult    |
+
+See `celestia-da light/full/bridge start --help` for details.
 
 ### Tools
 
