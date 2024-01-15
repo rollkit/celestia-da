@@ -1,6 +1,6 @@
 # celestia-da
 
-celestia-da is an imlpementation of the [Generic DA interface](https://github.com/rollkit/go-da)
+celestia-da is an implementation of the [Generic DA interface](https://github.com/rollkit/go-da)
 for modular blockchains. It extends celestia-node and runs a gRPC service,
 which can be used by rollup clients to read and write blob data to a specific
 namespace on celestia.
@@ -40,7 +40,7 @@ celestia-da is a wrapper around celestia-node, so see
 details on configuring and running celestia-node.
 
 celestia-da connects to celestia-node using JSON-RPC using the node rpc
-endpoint. See [node rpc docs](https://node-rpc-docs.celestia.org/) dor details.
+endpoint. See [node rpc docs](https://node-rpc-docs.celestia.org/) for details.
 
 celestia-da exposes a gRPC service that can be used with any gRPC client to
 submit and retrieve blobs from a specific
