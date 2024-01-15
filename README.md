@@ -1,10 +1,14 @@
 # celestia-da
 
-celestia-da is an imlpementation of the [Generic DA interface](https://github.com/celestiaorg/go-da) for modular blockchains. It extends celestia-node and runs a gRPC service,
-which can be used by rollup clients to read and write blob data to a specific namespace on celestia.
+celestia-da is an imlpementation of the [Generic DA interface](https://github.com/celestiaorg/go-da)
+for modular blockchains. It extends celestia-node and runs a gRPC service,
+which can be used by rollup clients to read and write blob data to a specific
+namespace on celestia.
 
-Note that the rollup clients _do not_ need to depend on celestia, they can just make sure that the DA interface is satisfied and start using the service. This is
-a key feature of modular blockchains as they can switch the implementations without having to change the interface.
+Note that the rollup clients _do not_ need to depend on celestia, they can just
+make sure that the DA interface is satisfied and start using the service. This
+is a key feature of modular blockchains as they can switch the implementations
+without having to change the interface.
 
 <!-- markdownlint-disable MD013 -->
 [![build-and-test](https://github.com/rollkit/celestia-da/actions/workflows/ci_release.yml/badge.svg)](https://github.com/rollkit/celestia-da/actions/workflows/ci_release.yml)
@@ -28,27 +32,40 @@ cd celestia-da
 make build
 sudo make install
 ```
+
 ## Usage
 
-celestia-da is a wrapper around celestia-node, so see [celestia node](https://github.com/celestiaorg/celestia-node) documentation for details on configuring and running celestia-node.
+celestia-da is a wrapper around celestia-node, so see
+[celestia node](https://github.com/celestiaorg/celestia-node) documentation for
+details on configuring and running celestia-node.
 
-celestia-da connects to celestia-node using JSON-RPC using the node rpc endpoint. See [node rpc docs](https://node-rpc-docs.celestia.org/) dor details.
+celestia-da connects to celestia-node using JSON-RPC using the node rpc
+endpoint. See [node rpc docs](https://node-rpc-docs.celestia.org/) dor details.
 
-celestia-da exposes a gRPC service that can be used with any gRPC client to submit and retrieve blobs from a specific
+celestia-da exposes a gRPC service that can be used with any gRPC client to
+submit and retrieve blobs from a specific
 namespace on the celestia network.
 
-Note that celestia-da version may differ from the bundled celestia-node version. Use the `celestia-da version` command
-to print the build information including the bundled celestia-node version.
+Note that celestia-da version may differ from the bundled celestia-node
+version. Use the `celestia-da version` command to print the build information
+including the bundled celestia-node version.
 
-To start a celestia-da instance, use the preferred node type with `start` command along with the gRPC specific flags as documented below.
+To start a celestia-da instance, use the preferred node type with `start`
+command along with the gRPC specific flags as documented below.
 
 ## Example
 
-Run celestia-da light mainnet node with a default DA interface server accepting blobs on a randomly chosen namespace:
+Run celestia-da light mainnet node with a default DA interface server
+accepting blobs on a randomly chosen namespace:
 
-    celestia-da light start --core.ip <public ip> --da.grpc.namespace $(openssl rand -hex 10)
+```sh
+    celestia-da light start
+        --core.ip <public ip>
+        --da.grpc.namespace $(openssl rand -hex 10)
+```
 
-Note that the celestia-node RPC auth token is auto generated using the default celestia-node store. If passed, the `da.grpc.token` flag
+Note that the celestia-node RPC auth token is auto generated using the default
+celestia-node store. If passed, the `da.grpc.token` flag
 will override the default auth token.
 
 ## Flags
