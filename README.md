@@ -7,7 +7,7 @@ Note that the rollup clients _do not_ need to depend on celestia, they can just 
 a key feature of modular blockchains as they can switch the implementations without having to change the interface.
 
 <!-- markdownlint-disable MD013 -->
-[![build-and-test](https://github.com/celest/celestia-da/actions/workflows/test.yml/badge.svg)](https://github.com/rollkit/celestia-da/actions/workflows/test.yml)
+[![build-and-test](https://github.com/rollkit/celestia-da/actions/workflows/ci_release.yml/badge.svg)](https://github.com/rollkit/celestia-da/actions/workflows/ci_release.yml)
 [![golangci-lint](https://github.com/rollkit/celestia-da/actions/workflows/lint.yml/badge.svg)](https://github.com/rollkit/celestia-da/actions/workflows/lint.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/rollkit/celestia-da)](https://goreportcard.com/report/github.com/rollkit/celestia-da)
 [![codecov](https://codecov.io/gh/rollkit/celestia-da/branch/main/graph/badge.svg?token=CWGA4RLDS9)](https://codecov.io/gh/rollkit/celestia-da)
