@@ -5,9 +5,12 @@ import (
 	"encoding/hex"
 	"errors"
 	"net"
+	"net/http"
 
 	rpc "github.com/celestiaorg/celestia-node/api/rpc/client"
 	"github.com/celestiaorg/celestia-node/share"
+	"github.com/filecoin-project/go-jsonrpc"
+	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 
 	"github.com/rollkit/celestia-da/celestia"
 
@@ -17,10 +20,30 @@ import (
 	"github.com/rollkit/go-da/proxy"
 )
 
-func serve(ctx context.Context, rpcAddress, rpcToken, listenAddress, listenNetwork, nsString string, gasPrice float64) {
-	client, err := rpc.NewClient(ctx, rpcAddress, rpcToken)
-	if err != nil {
-		log.Fatalln("failed to create celestia-node RPC client:", err)
+var serviceName = "celestia-da"
+
+func serve(ctx context.Context, rpcAddress, rpcToken, listenAddress, listenNetwork, nsString string, gasPrice float64, metrics bool) {
+	var client *rpc.Client
+	var err error
+	var m *sdkmetric.MeterProvider
+	if metrics {
+		m, err = setupMetrics(ctx, serviceName)
+		if err != nil {
+			log.Fatalln("failed to setup metrics:", err)
+		}
+		httpTransport := NewMetricTransport(nil, m.Meter("rpc"), "rpc", "celestia-node json-rpc client", nil)
+		httpClient := &http.Client{
+			Transport: httpTransport,
+		}
+		client, err = rpc.NewClient(ctx, rpcAddress, rpcToken, jsonrpc.WithHTTPClient(httpClient))
+		if err != nil {
+			log.Fatalln("failed to create celestia-node RPC client:", err)
+		}
+	} else {
+		client, err = rpc.NewClient(ctx, rpcAddress, rpcToken)
+		if err != nil {
+			log.Fatalln("failed to create celestia-node RPC client:", err)
+		}
 	}
 	nsBytes := make([]byte, len(nsString)/2)
 	_, err = hex.Decode(nsBytes, []byte(nsString))
@@ -32,7 +55,7 @@ func serve(ctx context.Context, rpcAddress, rpcToken, listenAddress, listenNetwo
 		log.Fatalln("invalid namespace:", err)
 	}
 
-	da := celestia.NewCelestiaDA(client, namespace, gasPrice, ctx)
+	da := celestia.NewCelestiaDA(client, namespace, gasPrice, ctx, m)
 	// TODO(tzdybal): add configuration options for encryption
 	srv := proxy.NewServer(da, grpc.Creds(insecure.NewCredentials()))
 

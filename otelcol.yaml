@@ -1,0 +1,20 @@
+receivers:
+  otlp:
+    protocols:
+      http:
+        endpoint: 0.0.0.0:4318 # It is important that we do not use localhost
+
+exporters:
+  debug:
+    verbosity: detailed
+  logging:
+
+service:
+  pipelines:
+    metrics:
+      receivers: [ otlp ]
+      processors:
+      exporters: [ logging ]
+  telemetry:
+    logs:
+      level: "debug"
