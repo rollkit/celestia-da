@@ -72,7 +72,7 @@ will override the default auth token.
 | `da.grpc.listen`               | gRPC service listen address             | `127.0.0.1:0`                 |
 | `da.grpc.network`              | gRPC service listen network type        | `tcp`                         |
 | `da.grpc.token`                | celestia-node RPC auth token            | `--node.store` auto generated |
-| `da.grpc.gasprice`             | gas price for estimating fee (`utia/gas`) | -1 celestia-node deafult    |
+| `da.grpc.gasprice`             | gas price for estimating fee (`utia/gas`) | -1 celestia-node default    |
 
 See `celestia-da light/full/bridge start --help` for details.
 
