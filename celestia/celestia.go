@@ -17,6 +17,7 @@ import (
 	auth "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	"github.com/rollkit/go-da"
+	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 )
 
 // CelestiaDA implements the celestia backend for the DA interface
@@ -25,15 +26,17 @@ type CelestiaDA struct {
 	namespace share.Namespace
 	gasPrice  float64
 	ctx       context.Context
+	metrics   *sdkmetric.MeterProvider
 }
 
 // NewCelestiaDA returns an instance of CelestiaDA
-func NewCelestiaDA(client *rpc.Client, namespace share.Namespace, gasPrice float64, ctx context.Context) *CelestiaDA {
+func NewCelestiaDA(client *rpc.Client, namespace share.Namespace, gasPrice float64, ctx context.Context, m *sdkmetric.MeterProvider) *CelestiaDA {
 	return &CelestiaDA{
 		client:    client,
 		namespace: namespace,
 		gasPrice:  gasPrice,
 		ctx:       ctx,
+		metrics:   m,
 	}
 }
 
