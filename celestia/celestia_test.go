@@ -5,7 +5,6 @@ import (
 	"encoding/hex"
 	"testing"
 
-	"github.com/celestiaorg/celestia-app/pkg/appconsts"
 	rpc "github.com/celestiaorg/celestia-node/api/rpc/client"
 	"github.com/celestiaorg/celestia-node/share"
 	"github.com/celestiaorg/nmt"
@@ -58,7 +57,7 @@ func TestCelestiaDA(t *testing.T) {
 	t.Run("MaxBlobSize", func(t *testing.T) {
 		maxBlobSize, err := m.MaxBlobSize(ctx)
 		assert.NoError(t, err)
-		assert.Equal(t, uint64(appconsts.DefaultMaxBytes), maxBlobSize)
+		assert.Equal(t, uint64(DefaultMaxBytes), maxBlobSize)
 	})
 
 	t.Run("Get_empty", func(t *testing.T) {
