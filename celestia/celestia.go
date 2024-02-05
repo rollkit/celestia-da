@@ -19,6 +19,16 @@ import (
 	"github.com/rollkit/go-da"
 )
 
+const (
+	// DefaultMaxBytes is the maximum blob size accepted by celestia core
+	// ADR-13 claims worst case padding approaches 2 rows for a full data square:
+	// see: https://github.com/celestiaorg/celestia-app/blob/main/docs/architecture/adr-013-non-interactive-default-rules-for-zero-padding.md
+	// square size (64) * two rows = 128 shares
+	// 128 shares * 512 bytes per share = 65,536 bytes to account for padding
+	// 1,973,786 - 65,536 = 1,908,250 bytes
+	DefaultMaxBytes = 1908250
+)
+
 // CelestiaDA implements the celestia backend for the DA interface
 type CelestiaDA struct {
 	client    *rpc.Client
@@ -40,7 +50,7 @@ func NewCelestiaDA(client *rpc.Client, namespace share.Namespace, gasPrice float
 // MaxBlobSize returns the max blob size
 func (c *CelestiaDA) MaxBlobSize(ctx context.Context) (uint64, error) {
 	// TODO: pass-through query to node, app
-	return appconsts.DefaultMaxBytes, nil
+	return DefaultMaxBytes, nil
 }
 
 // Get returns Blob for each given ID, or an error.
