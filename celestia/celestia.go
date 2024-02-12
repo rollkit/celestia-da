@@ -4,17 +4,13 @@ import (
 	"context"
 	"encoding/binary"
 	"log"
-	"math"
 	"strings"
 
-	"github.com/celestiaorg/celestia-app/pkg/appconsts"
 	"github.com/celestiaorg/celestia-app/x/blob/types"
 	rpc "github.com/celestiaorg/celestia-node/api/rpc/client"
 	"github.com/celestiaorg/celestia-node/blob"
 	"github.com/celestiaorg/celestia-node/share"
 	"github.com/celestiaorg/nmt"
-	sdktypes "github.com/cosmos/cosmos-sdk/types"
-	auth "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	"github.com/rollkit/go-da"
 )
@@ -54,11 +50,14 @@ func (c *CelestiaDA) MaxBlobSize(ctx context.Context) (uint64, error) {
 }
 
 // Get returns Blob for each given ID, or an error.
-func (c *CelestiaDA) Get(ctx context.Context, ids []da.ID) ([]da.Blob, error) {
+func (c *CelestiaDA) Get(ctx context.Context, ids []da.ID, ns da.Namespace) ([]da.Blob, error) {
+	if ns == nil {
+		ns = c.namespace
+	}
 	var blobs []da.Blob
 	for _, id := range ids {
-		height, commitment := splitID(id)
-		blob, err := c.client.Blob.Get(ctx, height, c.namespace, commitment)
+		height, commitment := SplitID(id)
+		blob, err := c.client.Blob.Get(ctx, height, ns, commitment)
 		if err != nil {
 			return nil, err
 		}
@@ -68,9 +67,9 @@ func (c *CelestiaDA) Get(ctx context.Context, ids []da.ID) ([]da.Blob, error) {
 }
 
 // GetIDs returns IDs of all Blobs located in DA at given height.
-func (c *CelestiaDA) GetIDs(ctx context.Context, height uint64) ([]da.ID, error) {
+func (c *CelestiaDA) GetIDs(ctx context.Context, height uint64, ns da.Namespace) ([]da.ID, error) {
 	var ids []da.ID
-	blobs, err := c.client.Blob.GetAll(ctx, height, []share.Namespace{c.namespace})
+	blobs, err := c.client.Blob.GetAll(ctx, height, []share.Namespace{ns})
 	if err != nil {
 		if strings.Contains(err.Error(), blob.ErrBlobNotFound.Error()) {
 			return nil, nil
@@ -78,64 +77,66 @@ func (c *CelestiaDA) GetIDs(ctx context.Context, height uint64) ([]da.ID, error)
 		return nil, err
 	}
 	for _, b := range blobs {
-		ids = append(ids, makeID(height, b.Commitment))
+		ids = append(ids, MakeID(height, b.Commitment))
 	}
 	return ids, nil
 }
 
 // Commit creates a Commitment for each given Blob.
-func (c *CelestiaDA) Commit(ctx context.Context, daBlobs []da.Blob) ([]da.Commitment, error) {
-	_, commitments, err := c.blobsAndCommitments(daBlobs)
+func (c *CelestiaDA) Commit(ctx context.Context, daBlobs []da.Blob, ns da.Namespace) ([]da.Commitment, error) {
+	if ns == nil {
+		ns = c.namespace
+	}
+	_, commitments, err := c.blobsAndCommitments(daBlobs, ns)
 	return commitments, err
 }
 
 // Submit submits the Blobs to Data Availability layer.
-func (c *CelestiaDA) Submit(ctx context.Context, daBlobs []da.Blob, gasPrice float64) ([]da.ID, []da.Proof, error) {
-	blobs, commitments, err := c.blobsAndCommitments(daBlobs)
+func (c *CelestiaDA) Submit(ctx context.Context, daBlobs []da.Blob, gasPrice float64, ns da.Namespace) ([]da.ID, error) {
+	if ns == nil {
+		ns = c.namespace
+	}
+	blobs, _, err := c.blobsAndCommitments(daBlobs, ns)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
-	options := blob.DefaultSubmitOptions()
-	// if gas price was configured globally use that as the default
-	if c.gasPrice >= 0 && gasPrice < 0 {
-		gasPrice = c.gasPrice
-	}
-	if gasPrice >= 0 {
-		blobSizes := make([]uint32, len(blobs))
-		for i, blob := range blobs {
-			blobSizes[i] = uint32(len(blob.Data))
-		}
-		options.GasLimit = types.EstimateGas(blobSizes, appconsts.DefaultGasPerBlobByte, auth.DefaultTxSizeCostPerByte)
-		options.Fee = sdktypes.NewInt(int64(math.Ceil(gasPrice * float64(options.GasLimit)))).Int64()
-	}
-	height, err := c.client.Blob.Submit(ctx, blobs, options)
+	height, err := c.client.Blob.Submit(ctx, blobs, blob.GasPrice(gasPrice))
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
-	log.Println("successfully submitted blobs", "height", height, "gas", options.GasLimit, "fee", options.Fee)
-	ids := make([]da.ID, len(daBlobs))
-	proofs := make([]da.Proof, len(daBlobs))
-	for i, commitment := range commitments {
-		ids[i] = makeID(height, commitment)
-		proof, err := c.client.Blob.GetProof(ctx, height, c.namespace, commitment)
+	log.Println("successfully submitted blobs", "height", height, "gasPrice", gasPrice)
+	ids := make([]da.ID, len(blobs))
+	for i, blob := range blobs {
+		ids[i] = MakeID(height, blob.Commitment)
+	}
+	return ids, nil
+}
+
+func (c *CelestiaDA) GetProofs(ctx context.Context, daIDs []da.ID, ns da.Namespace) ([]da.Proof, error) {
+	if ns == nil {
+		ns = c.namespace
+	}
+	proofs := make([]da.Proof, len(daIDs))
+	for i, id := range daIDs {
+		height, commitment := SplitID(id)
+		proof, err := c.client.Blob.GetProof(ctx, height, ns, commitment)
 		if err != nil {
-			return nil, nil, err
+			return nil, err
 		}
-		// TODO(tzdybal): does always len(*proof) == 1?
-		proofs[i], err = (*proof)[0].MarshalJSON()
+		proofs[i], err = proof.MarshalJSON()
 		if err != nil {
-			return nil, nil, err
+			return nil, err
 		}
 	}
-	return ids, proofs, nil
+	return proofs, nil
 }
 
 // blobsAndCommitments converts []da.Blob to []*blob.Blob and generates corresponding []da.Commitment
-func (c *CelestiaDA) blobsAndCommitments(daBlobs []da.Blob) ([]*blob.Blob, []da.Commitment, error) {
+func (c *CelestiaDA) blobsAndCommitments(daBlobs []da.Blob, ns da.Namespace) ([]*blob.Blob, []da.Commitment, error) {
 	var blobs []*blob.Blob
 	var commitments []da.Commitment
 	for _, daBlob := range daBlobs {
-		b, err := blob.NewBlobV0(c.namespace, daBlob)
+		b, err := blob.NewBlobV0(ns, daBlob)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -151,7 +152,10 @@ func (c *CelestiaDA) blobsAndCommitments(daBlobs []da.Blob) ([]*blob.Blob, []da.
 }
 
 // Validate validates Commitments against the corresponding Proofs. This should be possible without retrieving the Blobs.
-func (c *CelestiaDA) Validate(ctx context.Context, ids []da.ID, daProofs []da.Proof) ([]bool, error) {
+func (c *CelestiaDA) Validate(ctx context.Context, ids []da.ID, daProofs []da.Proof, ns da.Namespace) ([]bool, error) {
+	if ns == nil {
+		ns = c.namespace
+	}
 	var included []bool
 	var proofs []*blob.Proof
 	for _, daProof := range daProofs {
@@ -163,11 +167,11 @@ func (c *CelestiaDA) Validate(ctx context.Context, ids []da.ID, daProofs []da.Pr
 		proofs = append(proofs, proof)
 	}
 	for i, id := range ids {
-		height, commitment := splitID(id)
+		height, commitment := SplitID(id)
 		// TODO(tzdybal): for some reason, if proof doesn't match commitment, API returns (false, "blob: invalid proof")
 		//    but analysis of the code in celestia-node implies this should never happen - maybe it's caused by openrpc?
 		//    there is no way of gently handling errors here, but returned value is fine for us
-		isIncluded, _ := c.client.Blob.Included(ctx, height, c.namespace, proofs[i], commitment)
+		isIncluded, _ := c.client.Blob.Included(ctx, height, ns, proofs[i], commitment)
 		included = append(included, isIncluded)
 	}
 	return included, nil
@@ -178,18 +182,19 @@ func (c *CelestiaDA) Validate(ctx context.Context, ids []da.ID, daProofs []da.Pr
 // This is 8 as uint64 consist of 8 bytes.
 const heightLen = 8
 
-func makeID(height uint64, commitment da.Commitment) da.ID {
+func MakeID(height uint64, commitment da.Commitment) da.ID {
 	id := make([]byte, heightLen+len(commitment))
 	binary.LittleEndian.PutUint64(id, height)
 	copy(id[heightLen:], commitment)
 	return id
 }
 
-func splitID(id da.ID) (uint64, da.Commitment) {
+func SplitID(id da.ID) (uint64, da.Commitment) {
 	if len(id) <= heightLen {
 		return 0, nil
 	}
-	return binary.LittleEndian.Uint64(id[:heightLen]), id[heightLen:]
+	commitment := id[heightLen:]
+	return binary.LittleEndian.Uint64(id[:heightLen]), commitment
 }
 
 var _ da.DA = &CelestiaDA{}
