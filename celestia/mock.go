@@ -17,7 +17,7 @@ type MockBlobAPI struct {
 }
 
 // Submit mocks the blob.Submit method
-func (m *MockBlobAPI) Submit(ctx context.Context, blobs []*blob.Blob, options *blob.SubmitOptions) (uint64, error) {
+func (m *MockBlobAPI) Submit(ctx context.Context, blobs []*blob.Blob, gasPrice float64) (uint64, error) {
 	m.height += 1
 	return m.height, nil
 }

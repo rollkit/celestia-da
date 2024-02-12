@@ -21,7 +21,7 @@ func WithDataAvailabilityService(flags []*pflag.FlagSet) func(*cobra.Command) {
 		grpcFlags := &pflag.FlagSet{}
 		grpcFlags.String(grpcAddrFlag, "http://127.0.0.1:26658", "celestia-node RPC endpoint address")
 		grpcFlags.String(grpcTokenFlag, "", "celestia-node RPC auth token")
-		grpcFlags.String(grpcNamespaceFlag, "", "celestia namespace to use (hex encoded)")
+		grpcFlags.String(grpcNamespaceFlag, "", "celestia namespace to use (hex encoded) [Deprecated]")
 		grpcFlags.String(grpcListenFlag, "127.0.0.1:0", "gRPC service listen address")
 		grpcFlags.String(grpcNetworkFlag, "tcp", "gRPC service listen network type must be \"tcp\", \"tcp4\", \"tcp6\", \"unix\" or \"unixpacket\"")
 		grpcFlags.Float64(grpcGasPriceFlag, -1, "gas price for estimating fee (utia/gas) default: -1 for default fees")
