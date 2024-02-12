@@ -56,7 +56,7 @@ func (c *CelestiaDA) Get(ctx context.Context, ids []da.ID, ns da.Namespace) ([]d
 	}
 	var blobs []da.Blob
 	for _, id := range ids {
-		height, commitment := SplitID(id)
+		height, commitment := splitID(id)
 		blob, err := c.client.Blob.Get(ctx, height, ns, commitment)
 		if err != nil {
 			return nil, err
@@ -77,7 +77,7 @@ func (c *CelestiaDA) GetIDs(ctx context.Context, height uint64, ns da.Namespace)
 		return nil, err
 	}
 	for _, b := range blobs {
-		ids = append(ids, MakeID(height, b.Commitment))
+		ids = append(ids, makeID(height, b.Commitment))
 	}
 	return ids, nil
 }
@@ -107,7 +107,7 @@ func (c *CelestiaDA) Submit(ctx context.Context, daBlobs []da.Blob, gasPrice flo
 	log.Println("successfully submitted blobs", "height", height, "gasPrice", gasPrice)
 	ids := make([]da.ID, len(blobs))
 	for i, blob := range blobs {
-		ids[i] = MakeID(height, blob.Commitment)
+		ids[i] = makeID(height, blob.Commitment)
 	}
 	return ids, nil
 }
@@ -119,7 +119,7 @@ func (c *CelestiaDA) GetProofs(ctx context.Context, daIDs []da.ID, ns da.Namespa
 	}
 	proofs := make([]da.Proof, len(daIDs))
 	for i, id := range daIDs {
-		height, commitment := SplitID(id)
+		height, commitment := splitID(id)
 		proof, err := c.client.Blob.GetProof(ctx, height, ns, commitment)
 		if err != nil {
 			return nil, err
@@ -168,7 +168,7 @@ func (c *CelestiaDA) Validate(ctx context.Context, ids []da.ID, daProofs []da.Pr
 		proofs = append(proofs, proof)
 	}
 	for i, id := range ids {
-		height, commitment := SplitID(id)
+		height, commitment := splitID(id)
 		// TODO(tzdybal): for some reason, if proof doesn't match commitment, API returns (false, "blob: invalid proof")
 		//    but analysis of the code in celestia-node implies this should never happen - maybe it's caused by openrpc?
 		//    there is no way of gently handling errors here, but returned value is fine for us
@@ -184,7 +184,7 @@ func (c *CelestiaDA) Validate(ctx context.Context, ids []da.ID, daProofs []da.Pr
 const heightLen = 8
 
 // MakeID returns the ID from the height and commitment.
-func MakeID(height uint64, commitment da.Commitment) da.ID {
+func makeID(height uint64, commitment da.Commitment) da.ID {
 	id := make([]byte, heightLen+len(commitment))
 	binary.LittleEndian.PutUint64(id, height)
 	copy(id[heightLen:], commitment)
@@ -192,7 +192,7 @@ func MakeID(height uint64, commitment da.Commitment) da.ID {
 }
 
 // SplitID returns the height and commitment from the ID.
-func SplitID(id da.ID) (uint64, da.Commitment) {
+func splitID(id da.ID) (uint64, da.Commitment) {
 	if len(id) <= heightLen {
 		return 0, nil
 	}

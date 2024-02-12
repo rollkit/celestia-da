@@ -100,7 +100,7 @@ func TestCelestiaDA(t *testing.T) {
 	t.Run("Get_existing", func(t *testing.T) {
 		commitment, err := hex.DecodeString("1b454951cd722b2cf7be5b04554b76ccf48f65a7ad6af45055006994ce70fd9d")
 		assert.NoError(t, err)
-		blobs, err := m.Get(ctx, []ID{MakeID(42, commitment)}, ns)
+		blobs, err := m.Get(ctx, []ID{makeID(42, commitment)}, ns)
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(blobs))
 		blob1 := blobs[0]
@@ -114,7 +114,7 @@ func TestCelestiaDA(t *testing.T) {
 		id1 := ids[0]
 		commitment, err := hex.DecodeString("1b454951cd722b2cf7be5b04554b76ccf48f65a7ad6af45055006994ce70fd9d")
 		assert.NoError(t, err)
-		assert.Equal(t, MakeID(42, commitment), id1)
+		assert.Equal(t, makeID(42, commitment), id1)
 	})
 
 	t.Run("Commit_existing", func(t *testing.T) {
@@ -148,7 +148,7 @@ func TestCelestiaDA(t *testing.T) {
 		proof := nmt.NewInclusionProof(0, 4, [][]byte{[]byte("test")}, true)
 		proofJSON, err := proof.MarshalJSON()
 		assert.NoError(t, err)
-		ids := []ID{MakeID(42, commitment)}
+		ids := []ID{makeID(42, commitment)}
 		proofs := []Proof{proofJSON}
 		valids, err := m.Validate(ctx, ids, proofs, ns)
 		assert.NoError(t, err)
