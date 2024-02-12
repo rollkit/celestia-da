@@ -112,6 +112,7 @@ func (c *CelestiaDA) Submit(ctx context.Context, daBlobs []da.Blob, gasPrice flo
 	return ids, nil
 }
 
+// GetProofs returns the inclusion proofs for the given IDs.
 func (c *CelestiaDA) GetProofs(ctx context.Context, daIDs []da.ID, ns da.Namespace) ([]da.Proof, error) {
 	if ns == nil {
 		ns = c.namespace
@@ -182,6 +183,7 @@ func (c *CelestiaDA) Validate(ctx context.Context, ids []da.ID, daProofs []da.Pr
 // This is 8 as uint64 consist of 8 bytes.
 const heightLen = 8
 
+// MakeID returns the ID from the height and commitment.
 func MakeID(height uint64, commitment da.Commitment) da.ID {
 	id := make([]byte, heightLen+len(commitment))
 	binary.LittleEndian.PutUint64(id, height)
@@ -189,6 +191,7 @@ func MakeID(height uint64, commitment da.Commitment) da.ID {
 	return id
 }
 
+// SplitID returns the height and commitment from the ID.
 func SplitID(id da.ID) (uint64, da.Commitment) {
 	if len(id) <= heightLen {
 		return 0, nil
