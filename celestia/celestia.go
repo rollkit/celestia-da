@@ -186,7 +186,6 @@ func (c *CelestiaDA) Validate(ctx context.Context, ids []da.ID, daProofs []da.Pr
 // This is 8 as uint64 consist of 8 bytes.
 const heightLen = 8
 
-// MakeID returns the ID from the height and commitment.
 func makeID(height uint64, commitment da.Commitment) da.ID {
 	id := make([]byte, heightLen+len(commitment))
 	binary.LittleEndian.PutUint64(id, height)
@@ -194,7 +193,6 @@ func makeID(height uint64, commitment da.Commitment) da.ID {
 	return id
 }
 
-// SplitID returns the height and commitment from the ID.
 func splitID(id da.ID) (uint64, da.Commitment) {
 	if len(id) <= heightLen {
 		return 0, nil
