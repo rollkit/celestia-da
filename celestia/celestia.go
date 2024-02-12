@@ -68,6 +68,9 @@ func (c *CelestiaDA) Get(ctx context.Context, ids []da.ID, ns da.Namespace) ([]d
 
 // GetIDs returns IDs of all Blobs located in DA at given height.
 func (c *CelestiaDA) GetIDs(ctx context.Context, height uint64, ns da.Namespace) ([]da.ID, error) {
+	if ns == nil {
+		ns = c.namespace
+	}
 	var ids []da.ID
 	blobs, err := c.client.Blob.GetAll(ctx, height, []share.Namespace{ns})
 	if err != nil {
@@ -196,8 +199,7 @@ func splitID(id da.ID) (uint64, da.Commitment) {
 	if len(id) <= heightLen {
 		return 0, nil
 	}
-	commitment := id[heightLen:]
-	return binary.LittleEndian.Uint64(id[:heightLen]), commitment
+	return binary.LittleEndian.Uint64(id[:heightLen]), id[heightLen:]
 }
 
 var _ da.DA = &CelestiaDA{}
