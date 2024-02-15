@@ -21,8 +21,10 @@ const (
 	// see: https://github.com/celestiaorg/celestia-app/blob/main/docs/architecture/adr-013-non-interactive-default-rules-for-zero-padding.md
 	// square size (64) * two rows = 128 shares
 	// 128 shares * 512 bytes per share = 65,536 bytes to account for padding
-	// 1,973,786 - 65,536 = 1,908,250 bytes
-	DefaultMaxBytes = 1908250
+	// also account for cmproto.Data overhead for each blob tx = 65,536 bytes
+	// see: https://github.com/celestiaorg/celestia-core/blob/edd9b9d8c38100ec0731ece4ac5f111e3a17ce32/types/tx.go#L205-L211
+	// 1,973,786 - 65,536 - 65,536 = 1,842,714 bytes
+	DefaultMaxBytes = 1842714
 )
 
 // CelestiaDA implements the celestia backend for the DA interface
