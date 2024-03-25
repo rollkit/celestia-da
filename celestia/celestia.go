@@ -157,7 +157,7 @@ func (c *CelestiaDA) blobsAndCommitments(daBlobs []da.Blob, ns da.Namespace) ([]
 // Validate validates Commitments against the corresponding Proofs. This should be possible without retrieving the Blobs.
 func (c *CelestiaDA) Validate(ctx context.Context, ids []da.ID, daProofs []da.Proof, ns da.Namespace) ([]bool, error) {
 	c.namespace = c.defaultNamespace(ns)
-	var included []bool
+	included := make([]bool, len(ids))
 	var proofs []*blob.Proof
 	for _, daProof := range daProofs {
 		nmtProof := &nmt.Proof{}
