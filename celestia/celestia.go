@@ -173,7 +173,7 @@ func (c *CelestiaDA) Validate(ctx context.Context, ids []da.ID, daProofs []da.Pr
 		//    but analysis of the code in celestia-node implies this should never happen - maybe it's caused by openrpc?
 		//    there is no way of gently handling errors here, but returned value is fine for us
 		isIncluded, _ := c.client.Blob.Included(ctx, height, c.namespace, proofs[i], commitment)
-		included = append(included, isIncluded)
+		included[i] = isIncluded
 	}
 	return included, nil
 }
