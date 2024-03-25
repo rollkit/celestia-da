@@ -3,6 +3,7 @@ package celestia
 import (
 	"context"
 	"encoding/binary"
+	"encoding/json"
 	"log"
 	"strings"
 
@@ -126,7 +127,7 @@ func (c *CelestiaDA) GetProofs(ctx context.Context, daIDs []da.ID, ns da.Namespa
 		if err != nil {
 			return nil, err
 		}
-		proofs[i], err = proof.MarshalJSON()
+		proofs[i], err = json.Marshal(proof)
 		if err != nil {
 			return nil, err
 		}
