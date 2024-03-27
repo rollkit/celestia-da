@@ -1,4 +1,4 @@
-### Migration
+# Migration
 
 celestia-da after v0.13.2 release is deprecated and will no longer be
 maintained.
