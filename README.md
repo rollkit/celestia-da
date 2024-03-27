@@ -1,5 +1,7 @@
 # celestia-da
 
+> :warning: **celestia-da is deprecated. See the [migration guide](./migration.md) for details.**
+
 celestia-da is an implementation of the [Generic DA interface](https://github.com/rollkit/go-da)
 for modular blockchains. It extends celestia-node and runs a gRPC service,
 which can be used by rollup clients to read and write blob data to a specific
@@ -17,7 +19,7 @@ namespace on celestia.
 
 | Requirement | Notes          |
 | ----------- |----------------|
-| Go version  | 1.21 or higher |
+| Go version  | 1.22 or higher |
 
 ## Installation
 
@@ -78,7 +80,7 @@ See `celestia-da light/full/bridge start --help` for details.
 
 ### Tools
 
-1. Install [golangci-lint](https://golangci-lint.run/usage/install/)
+1. Install [golangci-lint](https://golangci-lint.run/welcome/install/)
 1. Install [markdownlint](https://github.com/DavidAnson/markdownlint)
 1. Install [hadolint](https://github.com/hadolint/hadolint)
 1. Install [yamllint](https://yamllint.readthedocs.io/en/stable/quickstart.html)
