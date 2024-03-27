@@ -23,4 +23,4 @@ client.DA.MaxBlobSize()
 // returns 1974272
 ```
 
-See the [go-da releasenotes](https://github.com/rollkit/go-da/releases/tag/v0.5.0) for details.
+See the [go-da release notes](https://github.com/rollkit/go-da/releases/tag/v0.5.0) for details.
