@@ -15,6 +15,7 @@ the celestia command for e.g.:
 ```sh
 export CELESTIA_NODE_AUTH_TOKEN=$(celestia light auth write)
 ```
+
 Note that the auth token generated here should match the node type, network and
 node store of the node being connected to.
 
