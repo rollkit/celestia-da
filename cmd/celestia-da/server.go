@@ -14,7 +14,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
-	"github.com/rollkit/go-da/proxy"
+	proxygrpc "github.com/rollkit/go-da/proxy/grpc"
 )
 
 func serve(ctx context.Context, rpcAddress, rpcToken, listenAddress, listenNetwork, nsString string, gasPrice float64) {
@@ -34,7 +34,7 @@ func serve(ctx context.Context, rpcAddress, rpcToken, listenAddress, listenNetwo
 
 	da := celestia.NewCelestiaDA(client, namespace, gasPrice, ctx)
 	// TODO(tzdybal): add configuration options for encryption
-	srv := proxy.NewServer(da, grpc.Creds(insecure.NewCredentials()))
+	srv := proxygrpc.NewServer(da, grpc.Creds(insecure.NewCredentials()))
 
 	lis, err := net.Listen(listenNetwork, listenAddress)
 	if err != nil {
