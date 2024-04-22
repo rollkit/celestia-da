@@ -7,7 +7,7 @@ toolchain go1.22.1
 replace github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 
 require (
-	github.com/celestiaorg/celestia-app v1.7.0
+	github.com/celestiaorg/celestia-app v1.8.0
 	github.com/celestiaorg/celestia-node v0.13.2
 	github.com/celestiaorg/nmt v0.20.0
 	github.com/cristalhq/jwt v1.2.0
@@ -76,7 +76,7 @@ require (
 	github.com/cosmos/gogoproto v1.4.11 // indirect
 	github.com/cosmos/gorocksdb v1.2.0 // indirect
 	github.com/cosmos/iavl v0.19.6 // indirect
-	github.com/cosmos/ibc-go/v6 v6.2.0 // indirect
+	github.com/cosmos/ibc-go/v6 v6.3.0 // indirect
 	github.com/cosmos/ledger-cosmos-go v0.13.2 // indirect
 	github.com/crate-crypto/go-kzg-4844 v0.3.0 // indirect
 	github.com/creachadair/taskgroup v0.6.0 // indirect
